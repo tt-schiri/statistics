@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# Reads season data from csv file.
+# Plots LivePZ development as line chart.
 
 ## Legal stuff
 #
@@ -25,32 +25,26 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenTT-Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
-# create output files (TRUE) or plot directly (FALSE)
-createfiles = FALSE
+# load data
+source("GetData.R")
 
-# install and load RColorBrewer for nice colors
-if (!require("RColorBrewer")) {
-  install.packages("RColorBrewer")
-  library(RColorBrewer)
-  #display.brewer.all() # show all available color palettes
+col_palette = brewer.pal(8, "Dark2")
+
+title = "LivePZ Development"
+
+if (createfiles) {
+  pdf(sprintf("%s-%s.pdf", title, player))
 }
 
-# player name (for file names, later maybe a function parameter)
-player = "Ekkart"
+lpz_range = range(season$Live.PZ)
 
-# load season data
-season = read.table(sprintf("Season-%s.csv", player), encoding="UTF-8", sep=",", quote="\"", fill=TRUE, header=TRUE)
+plot(season$Live.PZ, type="n", main=title, xlab="", ylab="LivePZ", ylim=lpz_range, xaxt="n")
+axis(1, at=which(season$Description != ""), lab=season[season$Description != "", "Description"])
+axis(1, at=which(season$Date != ""), lab=season[season$Date != "", "Date"], mgp=c(3,2,0))
+lines(season$Live.PZ, type="s", lty=1, lwd=2, col=col_palette)
+legend("topleft", c(player), cex=0.8, lty=1, lwd=2, col=col_palette)
 
-# debug outputs
-
-# output data
-season
-
-# names
-season_names = names(season)
-season_names
-
-# values
-season$H.A
-season$LPZ.Diff
-season$Live.PZ
+# flush output
+if (createfiles) {
+  dev.off()
+}
