@@ -2,7 +2,7 @@
 
 - [Deutsch](#deutsch)
 - [English](#english)
-- [](#legal-stuff)
+- [Legal stuff](#legal-stuff)
 
 ## Deutsch
 
