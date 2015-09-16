@@ -37,11 +37,32 @@ if (createfiles) {
 }
 
 # counting wins and losses - I have a feeling, this can be improved a lot
+wl_cats = c("won", "lost")
+ha_cats = c("H", "A")
+counts = data.frame(
+  "won" = c("3:0" = 0, "3:1" = 0, "3:2" = 0),
+  "lost" = 0
+)
+
+for (i in 1:2) {
+  for (j in 0:2) {
+    counts[sprintf("3:%d", j), wl_cats[i]] = counts[sprintf("3:%d", j), wl_cats[i]] +
+      nrow(season[season$H.A == ha_cats[i] & season[,sprintf("Sets.%s", ha_cats[i])] == "3" & season[,sprintf("Sets.%s", ha_cats[i%%2+1])] == j,])
+  }
+}
+
+counts
+sum(counts[,"won"])
+
+nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] == "3" & season[,sprintf("Sätze.%s", cat)] == "0",])
+lost = lost + nrow(season[season$H.A == cat & season[,sprintf("Punkte.%s", cat)] == "0",])
+counts
+
 won = 0
 lost = 0
-for (kind in c("H", "A")) {
-  won = won + nrow(season[season$H.A == kind & season[,sprintf("Sets.%s", kind)] == "3",])
-  lost = lost + nrow(season[season$H.A == kind & season[,sprintf("Sets.%s", kind)] != "3",])
+for (cat in c("H", "A")) {
+  won = won + nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] == "3",])
+  lost = lost + nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] != "3",])
 }
 sum = won + lost
 
