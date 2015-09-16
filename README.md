@@ -113,7 +113,7 @@ Additionally, the following branches my occur:
 - `release-*` - synchronizing release versions between `develop` and `master`
 - `hotfix-*` - fast bugfixes
 
-## Legal stuff [legal]
+## Legal stuff
 
 Copyright 2015 Ekkart Kleinod <ekleinod@edgesoft.de>
 
