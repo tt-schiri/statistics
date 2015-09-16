@@ -1,8 +1,8 @@
 # OpenTT-Statistics
 
-- [Deutsch](#Deutsch)
-- [English](#English)
-- [Legal stuff](#legal)
+- [Deutsch](#deutsch)
+- [English](#english)
+- [](#legal-stuff)
 
 ## Deutsch
 
