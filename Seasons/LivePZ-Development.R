@@ -1,6 +1,10 @@
 # encoding: utf-8
 
 # Plots LivePZ development as line chart.
+#
+# @author ekleinod
+# @version 0.1
+# @since 0.1
 
 ## Legal stuff
 #
