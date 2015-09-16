@@ -1,6 +1,10 @@
 # encoding: utf-8
 
 # Reads season data from csv file.
+#
+# @author ekleinod
+# @version 0.1
+# @since 0.1
 
 ## Legal stuff
 #

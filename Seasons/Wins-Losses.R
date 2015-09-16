@@ -1,6 +1,12 @@
 # encoding: utf-8
 
 # Plots wins and losses as different charts.
+#
+# Not functional yet.
+#
+# @author ekleinod
+# @version 0.1
+# @since 0.1
 
 ## Legal stuff
 #
