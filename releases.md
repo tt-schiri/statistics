@@ -1,4 +1,4 @@
-# OpenTT-Documents - Releases
+# OpenTT-Statistics - Releases
 
 ## Version 0.1
 
