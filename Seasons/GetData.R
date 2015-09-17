@@ -3,7 +3,7 @@
 # Reads season data from csv file.
 #
 # @author ekleinod
-# @version 0.1
+# @version 0.2
 # @since 0.1
 
 ## Legal stuff
@@ -58,3 +58,6 @@ season_names
 season$H.A
 season$LPZ.Diff
 season$Live.PZ
+
+# ha levels
+ha_levels = setdiff(levels(season$H.A), c(""))
