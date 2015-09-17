@@ -5,7 +5,7 @@
 # Not functional yet.
 #
 # @author ekleinod
-# @version 0.1
+# @version 0.2
 # @since 0.1
 
 ## Legal stuff
@@ -42,39 +42,17 @@ if (createfiles) {
   pdf(sprintf("%s-%s.pdf", title, player))
 }
 
-# counting wins and losses - I have a feeling, this can be improved a lot
-wl_cats = c("won", "lost")
-ha_cats = c("H", "A")
-counts = data.frame(
-  "won" = c("3:0" = 0, "3:1" = 0, "3:2" = 0),
-  "lost" = 0
-)
+matches = is.element(season[,"H.A"], ha_levels)
+match_wins = season[,"Sets.P"] == "3"
+match_losses = season[,"Sets.P"] != "3"
 
-for (i in 1:2) {
-  for (j in 0:2) {
-    counts[sprintf("3:%d", j), wl_cats[i]] = counts[sprintf("3:%d", j), wl_cats[i]] +
-      nrow(season[season$H.A == ha_cats[i] & season[,sprintf("Sets.%s", ha_cats[i])] == "3" & season[,sprintf("Sets.%s", ha_cats[i%%2+1])] == j,])
-  }
-}
-
-counts
-sum(counts[,"won"])
-
-nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] == "3" & season[,sprintf("Sätze.%s", cat)] == "0",])
-lost = lost + nrow(season[season$H.A == cat & season[,sprintf("Punkte.%s", cat)] == "0",])
-counts
-
-won = 0
-lost = 0
-for (cat in c("H", "A")) {
-  won = won + nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] == "3",])
-  lost = lost + nrow(season[season$H.A == cat & season[,sprintf("Sets.%s", cat)] != "3",])
-}
-sum = won + lost
+wins = nrow(season[matches_only & match_wins,])
+losses = nrow(season[matches_only & match_losses,])
+sum = wins + losses
 
 pie(
   # values
-  c(won, lost),
+  c(wins, losses),
   # labels
   labels = "", # c("Wins", "Losses"),
   # title
@@ -84,7 +62,7 @@ pie(
   # no borders
   lty = 0
 )
-legend("topright", c(sprintf("Wins: %d (%1.0f %%)", won, (won/sum * 100)), sprintf("Losses: %d (%1.0f %%)", lost, (lost/sum * 100))), cex=0.8, fill=col_palette)
+legend("topright", c(sprintf("Wins: %d (%1.0f %%)", wins, (wins/sum * 100)), sprintf("Losses: %d (%1.0f %%)", losses, (losses/sum * 100))), cex=0.8, fill=col_palette)
 
 # flush output
 if (createfiles) {
