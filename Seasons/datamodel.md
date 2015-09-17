@@ -1,4 +1,4 @@
-# OpenTT-Statistics Data Model
+# OpenTT-Statistics Datenmodell/Data Model
 
 ## Deutsch
 
