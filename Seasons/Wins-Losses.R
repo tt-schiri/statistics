@@ -46,8 +46,8 @@ matches = is.element(season[,"H.A"], ha_levels)
 match_wins = season[,"Sets.P"] == "3"
 match_losses = season[,"Sets.P"] != "3"
 
-wins = nrow(season[matches_only & match_wins,])
-losses = nrow(season[matches_only & match_losses,])
+wins = nrow(season[matches & match_wins,])
+losses = nrow(season[matches & match_losses,])
 sum = wins + losses
 
 pie(
