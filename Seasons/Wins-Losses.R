@@ -5,7 +5,7 @@
 # Not functional yet.
 #
 # @author ekleinod
-# @version 0.2
+# @version 0.3
 # @since 0.1
 
 ## Legal stuff
@@ -43,8 +43,36 @@ if (createfiles) {
 }
 
 matches = is.element(season[,"H.A"], ha_levels)
+
+counts = data.frame(0,0,0)
+colnames(counts) = c("wins", "losses", "sum")
+rownames(counts) = c("all")
+
+for (i in 0:2) {
+  for (ha in ha_levels) {
+    counts = rbind(counts, c(0,0,0))
+    rownames(counts)[nrow(counts)] = sprintf("3:%d%s", i, ha)
+  }
+  counts = rbind(counts, c(0,0,0))
+  rownames(counts)[nrow(counts)] = sprintf("3:%d", i)
+}
+
 match_wins = season[,"Sets.P"] == "3"
 match_losses = season[,"Sets.P"] != "3"
+for (i in 0:2) {
+  for (ha in ha_levels) {
+    counts[sprintf("3:%d%s", i, ha),"wins"] = counts[sprintf("3:%d%s", i, ha),"wins"] + nrow(season[matches & match_wins & season[,"H.A"] == ha & season[,"Sets.O"] == i,])
+    counts[sprintf("3:%d%s", i, ha),"losses"] = counts[sprintf("3:%d%s", i, ha),"losses"] + nrow(season[matches & match_losses & season[,"H.A"] == ha & season[,"Sets.P"] == i,])
+  }
+}
+
+paste(c("3:","3:", "3:"), "H", sep="")
+paste(c("3:","3:", "3:"), ha_levels, sep="")
+paste(c("3:","3:", "3:"), 0:2, sep="")
+
+counts[c("3:0H","3:0A"),"wins"]
+
+
 
 wins = nrow(season[matches & match_wins,])
 losses = nrow(season[matches & match_losses,])
