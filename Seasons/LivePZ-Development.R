@@ -3,7 +3,7 @@
 # Plots LivePZ development as line chart.
 #
 # @author ekleinod
-# @version 0.1
+# @version 0.3
 # @since 0.1
 
 ## Legal stuff
@@ -43,8 +43,7 @@ if (createfiles) {
 lpz_range = range(season$Live.PZ)
 
 plot(season$Live.PZ, type="n", main=title, xlab="", ylab="LivePZ", ylim=lpz_range, xaxt="n")
-axis(1, at=which(season$Description != ""), lab=season[season$Description != "", "Description"])
-axis(1, at=which(season$Date != ""), lab=season[season$Date != "", "Date"], mgp=c(3,2,0))
+axis(1, at=which(season$Date != ""), lab=season[season$Date != "", "Date"])
 lines(season$Live.PZ, type="s", lty=1, lwd=2, col=col_palette)
 legend("topleft", c(player), cex=0.8, lty=1, lwd=2, col=col_palette)
 
