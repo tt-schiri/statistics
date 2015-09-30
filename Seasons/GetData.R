@@ -59,5 +59,8 @@ season$H.A
 season$LPZ.Diff
 season$Live.PZ
 
-# ha levels
+# home/away levels
 ha_levels = setdiff(levels(season$H.A), c(""))
+
+# win/loss levels
+wl_levels = c("wins", "losses")

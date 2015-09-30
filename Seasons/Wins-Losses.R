@@ -44,6 +44,7 @@ if (createfiles) {
 
 matches = is.element(season[,"H.A"], ha_levels)
 
+# prepare data frame
 counts = data.frame(0,0,0)
 colnames(counts) = c("wins", "losses", "sum")
 rownames(counts) = c("all")
@@ -57,20 +58,31 @@ for (i in 0:2) {
   rownames(counts)[nrow(counts)] = sprintf("3:%d", i)
 }
 
-match_wins = season[,"Sets.P"] == "3"
-match_losses = season[,"Sets.P"] != "3"
+# count wins and losses
+match_wl = data.frame(season[,"Sets.P"] == "3", season[,"Sets.P"] != "3")
+colnames(match_wl) = wl_levels
+!(match_wl[,"wins"])
 for (i in 0:2) {
   for (ha in ha_levels) {
-    counts[sprintf("3:%d%s", i, ha),"wins"] = counts[sprintf("3:%d%s", i, ha),"wins"] + nrow(season[matches & match_wins & season[,"H.A"] == ha & season[,"Sets.O"] == i,])
-    counts[sprintf("3:%d%s", i, ha),"losses"] = counts[sprintf("3:%d%s", i, ha),"losses"] + nrow(season[matches & match_losses & season[,"H.A"] == ha & season[,"Sets.P"] == i,])
+    for (wl in wl_levels) {
+      counts[sprintf("3:%d%s", i, ha), wl] = counts[sprintf("3:%d%s", i, ha), wl] + nrow(season[matches & match_wl[,wl] & season[,"H.A"] == ha & season[,"Sets.O"] == i,])
+    }
   }
 }
+counts
+# some sums for convenience
 
-paste(c("3:","3:", "3:"), "H", sep="")
+#for (i in 0:2) {
+#  sum(counts[paste(c("3:2"), ha_levels, sep=""), "wins"])
+#}
+
+#counts["all", "wins"] = sum(counts)
+
 paste(c("3:","3:", "3:"), ha_levels, sep="")
 paste(c("3:","3:", "3:"), 0:2, sep="")
+paste(paste(c("3:","3:", "3:"), 0:2, sep=""), ha_levels, sep="")
 
-counts[c("3:0H","3:0A"),"wins"]
+
 
 
 
