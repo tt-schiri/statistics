@@ -30,7 +30,7 @@
 # along with OpenTT-Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
 # create output files (TRUE) or plot directly (FALSE)
-createfiles = FALSE
+createfiles = TRUE
 
 # install and load RColorBrewer for nice colors
 if (!require("RColorBrewer")) {
