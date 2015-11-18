@@ -59,42 +59,43 @@ for (i in 0:2) {
 }
 
 # count wins and losses
-match_wl = data.frame(season[,"Sets.P"] == "3", season[,"Sets.P"] != "3")
+match_wl = data.frame(season[,"Sets"] == "+", season[,"Sets"] == "-")
 colnames(match_wl) = wl_levels
 !(match_wl[,"wins"])
 for (i in 0:2) {
   for (ha in ha_levels) {
     for (wl in wl_levels) {
-      counts[sprintf("3:%d%s", i, ha), wl] = counts[sprintf("3:%d%s", i, ha), wl] + nrow(season[matches & match_wl[,wl] & season[,"H.A"] == ha & season[,"Sets.O"] == i,])
+      counts[sprintf("3:%d%s", i, ha), wl] = counts[sprintf("3:%d%s", i, ha), wl] + nrow(season[matches & match_wl[,wl] & season[,"H.A"] == ha & season[,"SetsP"] == i,])
     }
   }
 }
 counts
+
 # some sums for convenience
+# sets = A+H
+for (i in 0:2) {
+  for (wl in wl_levels) {
+    counts[sprintf("3:%d", i), wl] = sum(counts[paste(sprintf("3:%d", i), ha_levels, sep = ""), wl])
+  }
+}
+# all = sets
+for (wl in wl_levels) {
+  counts["all", wl] = sum(counts[paste("3:", 0:2, sep = ""), wl])
+}
+# sums of rows
+# tbd
+counts
 
-#for (i in 0:2) {
-#  sum(counts[paste(c("3:2"), ha_levels, sep=""), "wins"])
-#}
-
-#counts["all", "wins"] = sum(counts)
-
-paste(c("3:","3:", "3:"), ha_levels, sep="")
-paste(c("3:","3:", "3:"), 0:2, sep="")
-paste(paste(c("3:","3:", "3:"), 0:2, sep=""), ha_levels, sep="")
-
-
-
-
-
-wins = nrow(season[matches & match_wins,])
-losses = nrow(season[matches & match_losses,])
-sum = wins + losses
+# overall wins and losses
+wl_counts = counts["all", wl_levels]
+sum = sum(wl_counts)
+wl_percs = wl_counts/sum*100
 
 pie(
   # values
-  c(wins, losses),
+  c(wl_counts["all","wins"], wl_counts["all","losses"]),
   # labels
-  labels = "", # c("Wins", "Losses"),
+  labels = "",
   # title
   main = title,
   # colors
@@ -102,7 +103,12 @@ pie(
   # no borders
   lty = 0
 )
-legend("topright", c(sprintf("Wins: %d (%1.0f %%)", wins, (wins/sum * 100)), sprintf("Losses: %d (%1.0f %%)", losses, (losses/sum * 100))), cex=0.8, fill=col_palette)
+legend("topright", 
+       c(
+         sprintf("Wins: %d (%1.0f %%)", wl_counts["all","wins"], wl_percs["all","wins"]), 
+         sprintf("Losses: %d (%1.0f %%)", wl_counts["all","losses"], wl_percs["all","losses"])
+         ), 
+       cex=0.8, fill=col_palette)
 
 # flush output
 if (createfiles) {
