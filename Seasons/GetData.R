@@ -3,7 +3,7 @@
 # Reads season data from csv file.
 #
 # @author ekleinod
-# @version 0.2
+# @version 0.3
 # @since 0.1
 
 ## Legal stuff
@@ -29,8 +29,7 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenTT-Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
-# create output files (TRUE) or plot directly (FALSE)
-createfiles = TRUE
+source("Config.R")
 
 # install and load RColorBrewer for nice colors
 if (!require("RColorBrewer")) {
@@ -38,9 +37,6 @@ if (!require("RColorBrewer")) {
   library(RColorBrewer)
   #display.brewer.all() # show all available color palettes
 }
-
-# player name (for file names, later maybe a function parameter)
-player = "Ekkart"
 
 # load season data
 season = read.table(sprintf("Season-%s.csv", player), encoding="UTF-8", sep=",", quote="\"", fill=TRUE, header=TRUE)
