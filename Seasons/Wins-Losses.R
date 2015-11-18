@@ -48,14 +48,17 @@ matches = is.element(season[,"H.A"], ha_levels)
 counts = data.frame(0,0,0)
 colnames(counts) = c("wins", "losses", "sum")
 rownames(counts) = c("all")
-
 for (i in 0:2) {
-  for (ha in ha_levels) {
+  counts = rbind(counts, c(0,0,0))
+  rownames(counts)[nrow(counts)] = sprintf("3:%d", i)
+}
+for (ha in ha_levels) {
+  counts = rbind(counts, c(0,0,0))
+  rownames(counts)[nrow(counts)] = sprintf("all%s", ha)
+  for (i in 0:2) {
     counts = rbind(counts, c(0,0,0))
     rownames(counts)[nrow(counts)] = sprintf("3:%d%s", i, ha)
   }
-  counts = rbind(counts, c(0,0,0))
-  rownames(counts)[nrow(counts)] = sprintf("3:%d", i)
 }
 
 # count wins and losses
@@ -79,6 +82,7 @@ for (i in 0:2) {
   }
 }
 # all = sets
+counts[paste("3:0", ha_levels, sep = ""), ]
 for (wl in wl_levels) {
   counts["all", wl] = sum(counts[paste("3:", 0:2, sep = ""), wl])
 }
