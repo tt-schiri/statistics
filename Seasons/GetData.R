@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# Reads season data from csv file.
+# Reads seasondata data from csv file.
 #
 # @author ekleinod
 # @version 0.3
@@ -38,25 +38,25 @@ if (!require("RColorBrewer")) {
   #display.brewer.all() # show all available color palettes
 }
 
-# load season data
-season = read.table(sprintf("Season-%s.csv", player), encoding="UTF-8", sep=",", quote="\"", fill=TRUE, header=TRUE)
+# load seasondata data
+seasondata = read.table(sprintf("Season-%s_%s.csv", player, season), encoding="UTF-8", sep=",", quote="\"", fill=TRUE, header=TRUE)
 
 # debug outputs
 
 # output data
-season
+seasondata
 
 # names
-season_names = names(season)
-season_names
+seasondata_names = names(seasondata)
+seasondata_names
 
 # values
-season$H.A
-season$LPZ.Diff
-season$Live.PZ
+seasondata$H.A
+seasondata$LPZ.Diff
+seasondata$Live.PZ
 
 # home/away levels
-ha_levels = setdiff(levels(season$H.A), c(""))
+ha_levels = setdiff(levels(seasondata$H.A), c(""))
 
 # win/loss levels
 wl_levels = c("wins", "losses")

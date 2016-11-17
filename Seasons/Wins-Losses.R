@@ -39,10 +39,10 @@ col_palette = brewer.pal(8, "Dark2")
 title = "Wins and Losses"
 
 if (createfiles) {
-  pdf(sprintf("%s-%s.pdf", title, player))
+  pdf(sprintf("%s-%s_%s.pdf", title, player, season))
 }
 
-matches = is.element(season[,"H.A"], ha_levels)
+matches = is.element(seasondata[,"H.A"], ha_levels)
 
 # prepare data frame
 counts = data.frame(0,0,0)
@@ -62,13 +62,13 @@ for (ha in ha_levels) {
 }
 
 # count wins and losses
-match_wl = data.frame(season[,"Sets"] == "+", season[,"Sets"] == "-")
+match_wl = data.frame(seasondata[,"Sets"] == "+", seasondata[,"Sets"] == "-")
 colnames(match_wl) = wl_levels
 !(match_wl[,"wins"])
 for (i in 0:2) {
   for (ha in ha_levels) {
     for (wl in wl_levels) {
-      counts[sprintf("3:%d%s", i, ha), wl] = counts[sprintf("3:%d%s", i, ha), wl] + nrow(season[matches & match_wl[,wl] & season[,"H.A"] == ha & season[,"SetsP"] == i,])
+      counts[sprintf("3:%d%s", i, ha), wl] = counts[sprintf("3:%d%s", i, ha), wl] + nrow(seasondata[matches & match_wl[,wl] & seasondata[,"H.A"] == ha & seasondata[,"SetsP"] == i,])
     }
   }
 }

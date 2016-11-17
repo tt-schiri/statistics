@@ -34,3 +34,6 @@ createfiles = FALSE
 
 # player name (for file names, later maybe a function parameter)
 player = "Ekkart"
+
+# season name (for file names, later maybe a function parameter)
+season = "2016-2017"

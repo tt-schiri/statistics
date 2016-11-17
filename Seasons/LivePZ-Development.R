@@ -37,14 +37,14 @@ col_palette = brewer.pal(8, "Dark2")
 title = "LivePZ Development"
 
 if (createfiles) {
-  pdf(sprintf("%s-%s.pdf", title, player))
+  pdf(sprintf("%s-%s_%s.pdf", title, player, season))
 }
 
-lpz_range = range(season$Live.PZ)
+lpz_range = range(seasondata$Live.PZ)
 
-plot(season$Live.PZ, type="n", main=title, xlab="", ylab="LivePZ", ylim=lpz_range, xaxt="n")
-axis(1, at=which(season$Date != ""), lab=season[season$Date != "", "Date"])
-lines(season$Live.PZ, type="s", lty=1, lwd=2, col=col_palette)
+plot(seasondata$Live.PZ, type="n", main=title, xlab="", ylab="LivePZ", ylim=lpz_range, xaxt="n")
+axis(1, at=which(seasondata$Date != ""), lab=seasondata[seasondata$Date != "", "Date"])
+lines(seasondata$Live.PZ, type="s", lty=1, lwd=2, col=col_palette)
 legend("bottomleft", c(player), cex=0.8, lty=1, lwd=2, col=col_palette)
 
 # flush output
