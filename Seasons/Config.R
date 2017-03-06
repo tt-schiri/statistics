@@ -1,10 +1,10 @@
 # encoding: utf-8
 
-# Plots LivePZ development as line chart.
+# Configuration settings.
 #
 # @author ekleinod
 # @version 0.3
-# @since 0.1
+# @since 0.3
 
 ## Legal stuff
 #
@@ -29,25 +29,11 @@
 # You should have received a copy of the GNU General Public License
 # along with OpenTT-Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
-# load data
-source("GetData.R")
+# create output files (TRUE) or plot directly (FALSE)
+createfiles = TRUE
 
-col_palette = brewer.pal(8, "Dark2")
+# player name (for file names, later maybe a function parameter)
+player = "Ekkart"
 
-title = "LivePZ Development"
-
-if (createfiles) {
-  pdf(sprintf("%s-%s_%s.pdf", title, player, season))
-}
-
-lpz_range = range(seasondata$Live.PZ)
-
-plot(seasondata$Live.PZ, type="n", main=title, xlab="", ylab="LivePZ", ylim=lpz_range, xaxt="n")
-axis(1, at=which(seasondata$Date != ""), lab=seasondata[seasondata$Date != "", "Date"])
-lines(seasondata$Live.PZ, type="s", lty=1, lwd=2, col=col_palette)
-legend("bottomleft", c(player), cex=0.8, lty=1, lwd=2, col=col_palette)
-
-# flush output
-if (createfiles) {
-  dev.off()
-}
+# season name (for file names, later maybe a function parameter)
+season = "2016-2017"
