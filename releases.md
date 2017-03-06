@@ -1,5 +1,17 @@
 # OpenTT-Statistics - Releases
 
+## Version 0.3.0
+
+2017-03-06
+
+### Deutsch
+
+- Mehr Daten, wenig Statistik
+
+### English
+
+- More data, less statistics
+
 ## Version 0.2
 
 2015-09-17
