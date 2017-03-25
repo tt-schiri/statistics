@@ -1,0 +1,6 @@
+[submodule "submodules/edgeutils"]
+	path = submodules/edgeutils
+	url = git@github.com:ekleinod/edgeutils.git
+[submodule "submodules/datamodels-match"]
+	path = submodules/datamodels-match
+	url = git@github.com:tt-schiri/datamodels-match.git
