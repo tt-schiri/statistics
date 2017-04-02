@@ -38,8 +38,8 @@ import javafx.scene.layout.Pane;
  * along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Ekkart Kleinod
- * @version 0.1.0
- * @since 0.1.0
+ * @version 0.5.0
+ * @since 0.5.0
  */
 public class Resources {
 
@@ -49,8 +49,8 @@ public class Resources {
 	 * @param theImagePath image path
 	 * @return loaded image
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static Image loadImage(final String theImagePath) {
 		return new Image(Statistics.class.getClassLoader().getResourceAsStream(theImagePath));
@@ -62,8 +62,8 @@ public class Resources {
 	 * @param thePaneName pane name
 	 * @return loaded pane
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static Map.Entry<Pane, FXMLLoader> loadPane(final String thePaneName) {
 
@@ -74,7 +74,7 @@ public class Resources {
 			return new AbstractMap.SimpleImmutableEntry<>((Pane) loader.load(), loader);
 
 		} catch (IOException e) {
-			Statistics.logger.catching(e);
+			e.printStackTrace();
 			return null;
 		}
 
@@ -86,8 +86,8 @@ public class Resources {
 	 * @param theFileName pane name
 	 * @return loaded file as string
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static String loadFile(final String theFileName) {
 
@@ -103,7 +103,7 @@ public class Resources {
 			return sbReturn.toString();
 
 		} catch (Exception e) {
-			Statistics.logger.catching(e);
+			e.printStackTrace();
 			return "";
 		}
 

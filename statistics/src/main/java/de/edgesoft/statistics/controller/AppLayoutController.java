@@ -12,11 +12,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.knowm.xchart.BitmapEncoder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.PieChart;
+import org.knowm.xchart.PieChartBuilder;
+import org.knowm.xchart.PieSeries.PieSeriesRenderStyle;
+import org.knowm.xchart.style.PieStyler.AnnotationType;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
+import de.edgesoft.edgeutils.xchart.PieTheme;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Match;
 import de.edgesoft.statistics.jaxb.ObjectFactory;
@@ -324,6 +332,45 @@ public class AppLayoutController {
 
 			Path pathOut = Paths.get(txtOutpath.getText());
 			txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
+
+			// wins - losses
+			String[] sTitle = new String[] {"gewonnen - verloren", "win-loss"};
+		    PieChart chart = new PieChartBuilder()
+		    		.title(sTitle[0])
+		    		.height(300)
+		    		.width(300)
+		    		.build();
+
+		    chart.getStyler().setTheme(new PieTheme());
+		    chart.getStyler().setAnnotationType(AnnotationType.Label);
+		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
+
+		    chart.addSeries("Gewonnen", lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size());
+		    chart.addSeries("Verloren", lstMatches.stream().filter(match -> !match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size());
+
+		    String sFilename = Paths.get(pathOut.toString(), String.format("%s.png", sTitle[1])).toString();
+		    BitmapEncoder.saveBitmap(chart, sFilename, BitmapFormat.PNG);
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), sFilename));
+
+			// home/off
+			sTitle = new String[] {"Heim - Auswärts", "home-off"};
+		    chart = new PieChartBuilder()
+		    		.title(sTitle[0])
+		    		.height(300)
+		    		.width(300)
+		    		.build();
+
+		    chart.getStyler().setTheme(new PieTheme());
+		    chart.getStyler().setAnnotationType(AnnotationType.Label);
+		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
+
+		    chart.addSeries("Heim", lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size());
+		    chart.addSeries("Auswärts", lstMatches.stream().filter(match -> !match.getHome().getValue()).collect(Collectors.toList()).size());
+
+		    sFilename = Paths.get(pathOut.toString(), String.format("%s.png", sTitle[1])).toString();
+		    BitmapEncoder.saveBitmap(chart, sFilename, BitmapFormat.PNG);
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), sFilename));
+
 
 		} catch (IOException | IllegalStateException e) {
 			e.printStackTrace();

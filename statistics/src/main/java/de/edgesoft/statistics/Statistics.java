@@ -2,9 +2,6 @@ package de.edgesoft.statistics;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.sun.deploy.uitoolkit.impl.fx.HostServicesFactory;
 import com.sun.javafx.application.HostServicesDelegate;
 
@@ -48,14 +45,6 @@ import javafx.stage.Stage;
  * @since 0.1.0
  */
 public class Statistics extends Application {
-
-	/**
-	 * Central logger for all classes.
-	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
-	 */
-	public static final Logger logger = LogManager.getLogger(Statistics.class.getPackage().getName());
 
 	/**
 	 * Program and doc version.
