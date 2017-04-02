@@ -1,0 +1,3 @@
+[submodule "submodules/edgeutils"]
+	path = submodules/edgeutils
+	url = git@github.com:ekleinod/edgeutils.git
