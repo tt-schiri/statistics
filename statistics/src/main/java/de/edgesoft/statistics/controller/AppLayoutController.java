@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,9 +25,11 @@ import org.knowm.xchart.style.PieStyler.AnnotationType;
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.PieTheme;
 import de.edgesoft.statistics.Statistics;
+import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
 import de.edgesoft.statistics.jaxb.ObjectFactory;
 import de.edgesoft.statistics.jaxb.Result;
+import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.jaxb.Set;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
@@ -271,67 +272,84 @@ public class AppLayoutController {
 		Path pathDataFile = Paths.get(txtData.getText());
 		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Lade Daten aus ''{0}''.", pathDataFile.toAbsolutePath().normalize().toString())));
 
-		try (Reader in = new InputStreamReader(new FileInputStream(pathDataFile.toFile()), StandardCharsets.UTF_8)) {
+		Content theContent = new ObjectFactory().createContent();
 
-			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
+		if (pathDataFile.toString().endsWith(".csv")) {
 
-			// fill data model
-			List<Match> lstMatches = new ArrayList<>();
-			for (CSVRecord record : records) {
+			Season theSeason = new ObjectFactory().createSeason();
+			theSeason.setTitle(new SimpleStringProperty("temp"));
+			theContent.getSeason().add(theSeason);
 
-				if (record.get("H/A").isEmpty()) {
-					continue;
-				}
+			try (Reader in = new InputStreamReader(new FileInputStream(pathDataFile.toFile()), StandardCharsets.UTF_8)) {
 
-				Match theMatch = new ObjectFactory().createMatch();
+				Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
 
-				theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(record.get("Date"))));
-				theMatch.setTitle(new SimpleStringProperty(record.get("Description")));
+				// fill data model
+				for (CSVRecord record : records) {
 
-				theMatch.setHome(new SimpleBooleanProperty(record.get("H/A").equals("H")));
-
-				int iLPZDiff = Integer.parseInt(record.get("LPZ-Diff"));
-				int iLPZ = Integer.parseInt(record.get("Live-PZ"));
-				int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
-
-				theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
-				theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
-				theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-				theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
-
-				for (int i = 1; i <= 5; i++) {
-					if (!record.get(String.format("S%dP", i)).isEmpty()) {
-
-						Set theSet = new ObjectFactory().createSet();
-
-						Result theResult = new ObjectFactory().createResult();
-
-						theResult.setWon(new SimpleBooleanProperty(record.get(String.format("S%d", i)).equals("+")));
-						theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get(String.format("S%dP", i)))));
-
-						theSet.setResult(theResult);
-						theMatch.getSet().add(theSet);
+					if (record.get("H/A").isEmpty()) {
+						continue;
 					}
+
+					Match theMatch = new ObjectFactory().createMatch();
+
+					theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(record.get("Date"))));
+					theMatch.setTitle(new SimpleStringProperty(record.get("Description")));
+
+					theMatch.setHome(new SimpleBooleanProperty(record.get("H/A").equals("H")));
+
+					int iLPZDiff = Integer.parseInt(record.get("LPZ-Diff"));
+					int iLPZ = Integer.parseInt(record.get("Live-PZ"));
+					int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
+
+					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
+					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
+					theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
+					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
+
+					for (int i = 1; i <= 5; i++) {
+						if (!record.get(String.format("S%dP", i)).isEmpty()) {
+
+							Set theSet = new ObjectFactory().createSet();
+
+							Result theResult = new ObjectFactory().createResult();
+
+							theResult.setWon(new SimpleBooleanProperty(record.get(String.format("S%d", i)).equals("+")));
+							theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get(String.format("S%dP", i)))));
+
+							theSet.setResult(theResult);
+							theMatch.getSet().add(theSet);
+						}
+					}
+
+					Result theResult = new ObjectFactory().createResult();
+
+					theResult.setWon(new SimpleBooleanProperty(record.get("Sets").equals("+")));
+					theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get("SetsP"))));
+
+					theMatch.setSetResult(theResult);
+
+					theSeason.getMatch().add(theMatch);
+
+					txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
+							theSeason.getMatch().size(), theMatch.getTitle().getValue(),
+							theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
+							));
+
 				}
 
-				Result theResult = new ObjectFactory().createResult();
-
-				theResult.setWon(new SimpleBooleanProperty(record.get("Sets").equals("+")));
-				theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get("SetsP"))));
-
-				theMatch.setSetResult(theResult);
-
-				lstMatches.add(theMatch);
-
-				txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
-						lstMatches.size(), theMatch.getTitle().getValue(),
-						theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
-						));
-
+			} catch (IOException | IllegalStateException e) {
+				e.printStackTrace();
 			}
 
-			Path pathOut = Paths.get(txtOutpath.getText());
-			txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
+		}
+
+		Path pathOut = Paths.get(txtOutpath.getText());
+		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
+
+		try {
+
+			List<Match> lstMatches = theContent.getSeason().get(0).getMatch();
 
 			// wins - losses
 			String[] sTitle = new String[] {"gewonnen - verloren", "win-loss"};
@@ -371,8 +389,7 @@ public class AppLayoutController {
 		    BitmapEncoder.saveBitmap(chart, sFilename, BitmapFormat.PNG);
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), sFilename));
 
-
-		} catch (IOException | IllegalStateException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
