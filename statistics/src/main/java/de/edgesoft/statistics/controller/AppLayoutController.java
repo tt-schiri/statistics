@@ -20,6 +20,7 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
+import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.PieSeries.PieSeriesRenderStyle;
 import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.odftoolkit.simple.SpreadsheetDocument;
@@ -276,164 +277,17 @@ public class AppLayoutController {
 		Path pathDataFile = Paths.get(txtData.getText());
 		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Lade Daten aus ''{0}''.", pathDataFile.toAbsolutePath().normalize().toString())));
 
-		Content theContent = new ObjectFactory().createContent();
+		Content theContent = null;
 
 		if (pathDataFile.toString().endsWith(".csv")) {
-
-			Season theSeason = new ObjectFactory().createSeason();
-			theSeason.setTitle(new SimpleStringProperty("temp"));
-			theContent.getSeason().add(theSeason);
-
-			try (Reader in = new InputStreamReader(new FileInputStream(pathDataFile.toFile()), StandardCharsets.UTF_8)) {
-
-				Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
-
-				// fill data model
-				for (CSVRecord record : records) {
-
-					if (record.get("H/A").isEmpty()) {
-						continue;
-					}
-
-					Match theMatch = new ObjectFactory().createMatch();
-
-					theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(record.get("Date"))));
-					theMatch.setTitle(new SimpleStringProperty(record.get("Description")));
-
-					theMatch.setHome(new SimpleBooleanProperty(record.get("H/A").equals("H")));
-
-					int iLPZDiff = Integer.parseInt(record.get("LPZ-Diff"));
-					int iLPZ = Integer.parseInt(record.get("Live-PZ"));
-					int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
-
-					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
-					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
-					theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
-
-					for (int i = 1; i <= 5; i++) {
-						if (!record.get(String.format("S%dP", i)).isEmpty()) {
-
-							Set theSet = new ObjectFactory().createSet();
-
-							Result theResult = new ObjectFactory().createResult();
-
-							theResult.setWon(new SimpleBooleanProperty(record.get(String.format("S%d", i)).equals("+")));
-							theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get(String.format("S%dP", i)))));
-
-							theSet.setResult(theResult);
-							theMatch.getSet().add(theSet);
-						}
-					}
-
-					Result theResult = new ObjectFactory().createResult();
-
-					theResult.setWon(new SimpleBooleanProperty(record.get("Sets").equals("+")));
-					theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get("SetsP"))));
-
-					theMatch.setSetResult(theResult);
-
-					theSeason.getMatch().add(theMatch);
-
-					txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
-							theSeason.getMatch().size(), theMatch.getTitle().getValue(),
-							theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
-							));
-
-				}
-
-			} catch (IOException | IllegalStateException e) {
-				e.printStackTrace();
-			}
-
+			theContent = readFromCSV(pathDataFile);
 		}
 
 		if (pathDataFile.toString().endsWith(".ods")) {
-
-			try {
-
-				SpreadsheetDocument theDoc = SpreadsheetDocument.loadDocument(pathDataFile.toFile());
-
-				for (int iSheet = 0; (iSheet < theDoc.getSheetCount()); iSheet++) {
-
-					Table theSheet = theDoc.getSheetByIndex(iSheet);
-
-					Season theSeason = new ObjectFactory().createSeason();
-					theSeason.setTitle(new SimpleStringProperty(theSheet.getTableName()));
-					theContent.getSeason().add(theSeason);
-
-					Map<String, Integer> mapHeader = new HashMap<>();
-					Row rowHeader = theSheet.getRowByIndex(0);
-					for (int iCell = 0; (!rowHeader.getCellByIndex(iCell).getDisplayText().isEmpty()); iCell++) {
-						mapHeader.put(rowHeader.getCellByIndex(iCell).getDisplayText(), iCell);
-					}
-
-					for (int iRow = 1; (!theSheet.getRowByIndex(iRow).getCellByIndex(0).getDisplayText().isEmpty()); iRow++) {
-
-						Row theRow = theSheet.getRowByIndex(iRow);
-
-						if (theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().isEmpty()) {
-							continue;
-						}
-
-						Match theMatch = new ObjectFactory().createMatch();
-
-						theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(theRow.getCellByIndex(mapHeader.get("Date")).getDisplayText())));
-						theMatch.setTitle(new SimpleStringProperty(theRow.getCellByIndex(mapHeader.get("Description")).getDisplayText()));
-
-						theMatch.setHome(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().equals("H")));
-
-						int iLPZDiff = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText());
-						int iLPZ = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText());
-						int iLPZOther = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText());
-
-						theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
-						theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
-						theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-						theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
-
-						for (int i = 1; i <= 5; i++) {
-							if (!theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText().isEmpty()) {
-
-								Set theSet = new ObjectFactory().createSet();
-
-								Result theResult = new ObjectFactory().createResult();
-
-								theResult.setWon(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get(String.format("S%d", i))).getDisplayText().equals("+")));
-								theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText())));
-
-								theSet.setResult(theResult);
-								theMatch.getSet().add(theSet);
-							}
-						}
-
-						Result theResult = new ObjectFactory().createResult();
-
-						theResult.setWon(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("Sets")).getDisplayText().equals("+")));
-						theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(theRow.getCellByIndex(mapHeader.get("SetsP")).getDisplayText())));
-
-						theMatch.setSetResult(theResult);
-
-						theSeason.getMatch().add(theMatch);
-
-						txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
-								theSeason.getMatch().size(), theMatch.getTitle().getValue(),
-								theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
-								));
-
-					}
-
-				}
-
-				theDoc.close();
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
+			theContent = readFromODS(pathDataFile);
 		}
 
-		if (theContent.getSeason().isEmpty()) {
+		if ((theContent == null) || theContent.getSeason().isEmpty()) {
 			txtLog.setText(String.format("%s%n%s", txtLog.getText(), "Keine Daten vorhanden."));
 			return;
 		}
@@ -441,51 +295,21 @@ public class AppLayoutController {
 		Path pathOut = Paths.get(txtOutpath.getText());
 		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
 
-		try {
+		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
 
-			List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
+		// wins - losses
+		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
+				"gewonnen - verloren",
+				new PieSeries("Gewonnen", lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size()),
+				new PieSeries("Verloren", lstMatches.stream().filter(match -> !match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size())
+				);
 
-			// wins - losses
-			String[] sTitle = new String[] {"gewonnen - verloren", "win-loss"};
-		    PieChart chart = new PieChartBuilder()
-		    		.title(sTitle[0])
-		    		.height(300)
-		    		.width(300)
-		    		.build();
-
-		    chart.getStyler().setTheme(new PieTheme());
-		    chart.getStyler().setAnnotationType(AnnotationType.Label);
-		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
-
-		    chart.addSeries("Gewonnen", lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size());
-		    chart.addSeries("Verloren", lstMatches.stream().filter(match -> !match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size());
-
-		    String sFilename = Paths.get(pathOut.toString(), String.format("%s.png", sTitle[1])).toString();
-		    BitmapEncoder.saveBitmap(chart, sFilename, BitmapFormat.PNG);
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), sFilename));
-
-			// home/off
-			sTitle = new String[] {"Heim - Auswärts", "home-off"};
-		    chart = new PieChartBuilder()
-		    		.title(sTitle[0])
-		    		.height(300)
-		    		.width(300)
-		    		.build();
-
-		    chart.getStyler().setTheme(new PieTheme());
-		    chart.getStyler().setAnnotationType(AnnotationType.Label);
-		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
-
-		    chart.addSeries("Heim", lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size());
-		    chart.addSeries("Auswärts", lstMatches.stream().filter(match -> !match.getHome().getValue()).collect(Collectors.toList()).size());
-
-		    sFilename = Paths.get(pathOut.toString(), String.format("%s.png", sTitle[1])).toString();
-		    BitmapEncoder.saveBitmap(chart, sFilename, BitmapFormat.PNG);
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), sFilename));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// home/off
+		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-off")),
+				"Heim - Auswärts",
+				new PieSeries("Heim", lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size()),
+				new PieSeries("Auswärts", lstMatches.stream().filter(match -> !match.getHome().getValue()).collect(Collectors.toList()).size())
+				);
 
 	}
 
@@ -499,6 +323,225 @@ public class AppLayoutController {
 	 */
 	public Stage getPrimaryStage() {
 		return primaryStage;
+	}
+
+	/**
+	 * Read content from csv file.
+	 *
+	 * @param theInputPath input path
+	 * @return content
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private Content readFromCSV(final Path theInputPath) {
+
+		Content theContent = new ObjectFactory().createContent();
+
+		Season theSeason = new ObjectFactory().createSeason();
+		theSeason.setTitle(new SimpleStringProperty("temp"));
+		theContent.getSeason().add(theSeason);
+
+		try (Reader in = new InputStreamReader(new FileInputStream(theInputPath.toFile()), StandardCharsets.UTF_8)) {
+
+			Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
+
+			// fill data model
+			for (CSVRecord record : records) {
+
+				if (record.get("H/A").isEmpty()) {
+					continue;
+				}
+
+				Match theMatch = new ObjectFactory().createMatch();
+
+				theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(record.get("Date"))));
+				theMatch.setTitle(new SimpleStringProperty(record.get("Description")));
+
+				theMatch.setHome(new SimpleBooleanProperty(record.get("H/A").equals("H")));
+
+				int iLPZDiff = Integer.parseInt(record.get("LPZ-Diff"));
+				int iLPZ = Integer.parseInt(record.get("Live-PZ"));
+				int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
+
+				theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
+				theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
+				theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
+				theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
+
+				for (int i = 1; i <= 5; i++) {
+					if (!record.get(String.format("S%dP", i)).isEmpty()) {
+
+						Set theSet = new ObjectFactory().createSet();
+
+						Result theResult = new ObjectFactory().createResult();
+
+						theResult.setWon(new SimpleBooleanProperty(record.get(String.format("S%d", i)).equals("+")));
+						theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get(String.format("S%dP", i)))));
+
+						theSet.setResult(theResult);
+						theMatch.getSet().add(theSet);
+					}
+				}
+
+				Result theResult = new ObjectFactory().createResult();
+
+				theResult.setWon(new SimpleBooleanProperty(record.get("Sets").equals("+")));
+				theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get("SetsP"))));
+
+				theMatch.setSetResult(theResult);
+
+				theSeason.getMatch().add(theMatch);
+
+				txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
+						theSeason.getMatch().size(), theMatch.getTitle().getValue(),
+						theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
+						));
+
+			}
+
+		} catch (IOException | IllegalStateException e) {
+			e.printStackTrace();
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+		}
+
+		return theContent;
+
+	}
+
+	/**
+	 * Read content from ods file.
+	 *
+	 * @param theInputPath input path
+	 * @return content
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private Content readFromODS(final Path theInputPath) {
+
+		Content theContent = new ObjectFactory().createContent();
+
+		try {
+
+			SpreadsheetDocument theDoc = SpreadsheetDocument.loadDocument(theInputPath.toFile());
+
+			for (int iSheet = 0; (iSheet < theDoc.getSheetCount()); iSheet++) {
+
+				Table theSheet = theDoc.getSheetByIndex(iSheet);
+
+				Season theSeason = new ObjectFactory().createSeason();
+				theSeason.setTitle(new SimpleStringProperty(theSheet.getTableName()));
+				theContent.getSeason().add(theSeason);
+
+				Map<String, Integer> mapHeader = new HashMap<>();
+				Row rowHeader = theSheet.getRowByIndex(0);
+				for (int iCell = 0; (!rowHeader.getCellByIndex(iCell).getDisplayText().isEmpty()); iCell++) {
+					mapHeader.put(rowHeader.getCellByIndex(iCell).getDisplayText(), iCell);
+				}
+
+				for (int iRow = 1; (!theSheet.getRowByIndex(iRow).getCellByIndex(0).getDisplayText().isEmpty()); iRow++) {
+
+					Row theRow = theSheet.getRowByIndex(iRow);
+
+					if (theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().isEmpty()) {
+						continue;
+					}
+
+					Match theMatch = new ObjectFactory().createMatch();
+
+					theMatch.setDate(new SimpleObjectProperty<LocalDate>(DateTimeUtils.parseDate(theRow.getCellByIndex(mapHeader.get("Date")).getDisplayText())));
+					theMatch.setTitle(new SimpleStringProperty(theRow.getCellByIndex(mapHeader.get("Description")).getDisplayText()));
+
+					theMatch.setHome(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().equals("H")));
+
+					int iLPZDiff = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText());
+					int iLPZ = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText());
+					int iLPZOther = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText());
+
+					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
+					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
+					theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
+					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
+
+					for (int i = 1; i <= 5; i++) {
+						if (!theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText().isEmpty()) {
+
+							Set theSet = new ObjectFactory().createSet();
+
+							Result theResult = new ObjectFactory().createResult();
+
+							theResult.setWon(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get(String.format("S%d", i))).getDisplayText().equals("+")));
+							theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText())));
+
+							theSet.setResult(theResult);
+							theMatch.getSet().add(theSet);
+						}
+					}
+
+					Result theResult = new ObjectFactory().createResult();
+
+					theResult.setWon(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("Sets")).getDisplayText().equals("+")));
+					theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(theRow.getCellByIndex(mapHeader.get("SetsP")).getDisplayText())));
+
+					theMatch.setSetResult(theResult);
+
+					theSeason.getMatch().add(theMatch);
+
+					txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
+							theSeason.getMatch().size(), theMatch.getTitle().getValue(),
+							theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
+							));
+
+				}
+
+			}
+
+			theDoc.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+		}
+
+		return theContent;
+
+	}
+
+	/**
+	 * Write pie chart.
+	 *
+	 * @param theOutputPath output path
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void writePieChart(final Path theOutputPath, final String theTitle, final PieSeries... theSeries) {
+
+		try {
+
+		    PieChart chart = new PieChartBuilder()
+		    		.title(theTitle)
+		    		.height(300)
+		    		.width(300)
+		    		.build();
+
+		    chart.getStyler().setTheme(new PieTheme());
+		    chart.getStyler().setAnnotationType(AnnotationType.Label);
+		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
+
+		    for (PieSeries pieSeries : theSeries) {
+		    	chart.getSeriesMap().put(pieSeries.getName(), pieSeries);
+			}
+
+		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+		}
+
 	}
 
 }
