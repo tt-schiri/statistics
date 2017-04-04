@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
@@ -19,16 +20,13 @@ import org.apache.commons.csv.CSVRecord;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.PieChart;
-import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.PieSeries;
-import org.knowm.xchart.PieSeries.PieSeriesRenderStyle;
-import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
-import de.edgesoft.edgeutils.xchart.PieTheme;
+import de.edgesoft.edgeutils.xchart.ChartFactory;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
@@ -512,6 +510,8 @@ public class AppLayoutController {
 	 * Write pie chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theTitle chart title
+	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
@@ -520,15 +520,7 @@ public class AppLayoutController {
 
 		try {
 
-		    PieChart chart = new PieChartBuilder()
-		    		.title(theTitle)
-		    		.height(300)
-		    		.width(300)
-		    		.build();
-
-		    chart.getStyler().setTheme(new PieTheme());
-		    chart.getStyler().setAnnotationType(AnnotationType.Label);
-		    chart.getStyler().setDefaultSeriesRenderStyle(PieSeriesRenderStyle.Donut);
+		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(300), OptionalInt.of(300));
 
 		    for (PieSeries pieSeries : theSeries) {
 		    	chart.getSeriesMap().put(pieSeries.getName(), pieSeries);
