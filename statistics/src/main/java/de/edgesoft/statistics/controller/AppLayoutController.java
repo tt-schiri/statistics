@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
@@ -21,9 +22,12 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
+import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
+
+import com.sun.javafx.scene.control.behavior.OptionalBoolean;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
@@ -520,7 +524,7 @@ public class AppLayoutController {
 
 		try {
 
-		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(300), OptionalInt.of(300));
+		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(300), OptionalInt.of(300), Optional.empty());
 
 		    for (PieSeries pieSeries : theSeries) {
 		    	chart.getSeriesMap().put(pieSeries.getName(), pieSeries);
