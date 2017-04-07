@@ -95,6 +95,14 @@ import javafx.stage.Stage;
 public class AppLayoutController {
 
 	/**
+	 * Chart size.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	public static final int CHARTSIZE = 220;
+
+	/**
 	 * Application icon.
 	 *
 	 * @version 0.5.0
@@ -550,7 +558,7 @@ public class AppLayoutController {
 
 		try {
 
-		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(300), OptionalInt.of(300), Optional.empty());
+		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty());
 
 		    for (PieSeries pieSeries : theSeries) {
 		    	chart.getSeriesMap().put(pieSeries.getName(), pieSeries);
