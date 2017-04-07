@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYSeries;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
@@ -311,6 +314,8 @@ public class AppLayoutController {
 
 		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
 
+		// pie charts
+
 		// wins/losses
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
 				"gewonnen - verloren",
@@ -345,6 +350,28 @@ public class AppLayoutController {
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
 						)
+				);
+
+		// lpz charts
+		List<XYSeries> lstSeries = new ArrayList<>();
+
+	    List<Date> lstDates = new ArrayList<>();
+	    List<Integer> lstLPZ = new ArrayList<>();
+	    Match lastMatch = null;
+
+	    for (Match theMatch : lstMatches) {
+	    	lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
+	    	lstLPZ.add(theMatch.getLivePzBefore().getValue());
+	    	lastMatch = theMatch;
+	    }
+    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
+    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
+
+	    lstSeries.add(new XYSeries("LPZ", lstDates, lstLPZ, null));
+
+		writeStepChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz")),
+				"LPZ",
+				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
 
 	}
@@ -400,10 +427,10 @@ public class AppLayoutController {
 				int iLPZ = Integer.parseInt(record.get("Live-PZ"));
 				int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
 
-				theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
+				theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
 				theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
 				theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-				theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
+				theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ + iLPZDiff));
 
 				for (int i = 1; i <= 5; i++) {
 					if (!record.get(String.format("S%dP", i)).isEmpty()) {
@@ -495,10 +522,10 @@ public class AppLayoutController {
 					int iLPZ = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText());
 					int iLPZOther = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText());
 
-					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ - iLPZDiff));
+					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
 					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
 					theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ));
+					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ + iLPZDiff));
 
 					for (int i = 1; i <= 5; i++) {
 						if (!theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText().isEmpty()) {
@@ -560,8 +587,8 @@ public class AppLayoutController {
 
 		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty());
 
-		    for (PieSeries pieSeries : theSeries) {
-		    	chart.getSeriesMap().put(pieSeries.getName(), pieSeries);
+		    for (PieSeries series : theSeries) {
+		    	chart.getSeriesMap().put(series.getName(), series);
 			}
 
 		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
@@ -593,6 +620,36 @@ public class AppLayoutController {
 		}
 
 		return lstReturn.toArray(new PieSeries[lstReturn.size()]);
+
+	}
+
+	/**
+	 * Write step chart.
+	 *
+	 * @param theOutputPath output path
+	 * @param theTitle chart title
+	 * @param theSeries chart data
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void writeStepChart(final Path theOutputPath, final String theTitle, final XYSeries... theSeries) {
+
+		try {
+
+		    XYChart chart = ChartFactory.createStepChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3));
+
+		    for (XYSeries series : theSeries) {
+		    	chart.getSeriesMap().put(series.getName(), series);
+			}
+
+		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+		}
 
 	}
 
