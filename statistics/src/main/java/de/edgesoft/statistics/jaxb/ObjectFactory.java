@@ -5,6 +5,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
+import de.edgesoft.statistics.model.MatchModel;
 
 
 /**
@@ -54,7 +55,7 @@ public class ObjectFactory {
      * 
      */
     public Match createMatch() {
-        return new Match();
+        return new MatchModel();
     }
 
     /**

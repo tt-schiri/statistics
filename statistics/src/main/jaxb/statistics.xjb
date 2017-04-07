@@ -39,9 +39,9 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 	<jxb:bindings schemaLocation="statistics.xsd">
 
 		<!-- implementing classes -->
-		<!--jxb:bindings node="//xsd:complexType[@name='Address']">
-			<jxb:class implClass="de.edgesoft.refereemanager.model.AddressModel" />
-		</jxb:bindings-->
+		<jxb:bindings node="//xsd:complexType[@name='Match']">
+			<jxb:class implClass="de.edgesoft.statistics.model.MatchModel" />
+		</jxb:bindings>
 
 	</jxb:bindings>
 

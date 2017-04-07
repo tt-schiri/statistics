@@ -36,6 +36,7 @@ import de.edgesoft.statistics.jaxb.ObjectFactory;
 import de.edgesoft.statistics.jaxb.Result;
 import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.jaxb.Set;
+import de.edgesoft.statistics.model.MatchModel;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
 import de.edgesoft.statistics.utils.Prefs;
@@ -302,21 +303,39 @@ public class AppLayoutController {
 
 		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
 
-		// wins - losses
+		// wins/losses
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
 				"gewonnen - verloren",
 				getPieSeries(
-						lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size(),
-						lstMatches.size()
+						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size()
 						)
 				);
 
-		// home - off
+		// home/off
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-off")),
 				"Heim - Auswärts",
 				getPieSeries(
-						lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size(),
-						lstMatches.size()
+						lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size()
+						)
+				);
+
+		// home - wins/losses
+		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-win-loss")),
+				"Heim: gewonnen - verloren",
+				getPieSeries(
+						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size()
+						)
+				);
+
+		// off - wins/losses
+		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "off-win-loss")),
+				"Auswärts: gewonnen - verloren",
+				getPieSeries(
+						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
 						)
 				);
 
@@ -557,12 +576,13 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private PieSeries[] getPieSeries(final int theValue, final int theMaxValue) {
+	private PieSeries[] getPieSeries(final int... theValues) {
 
 		List<PieSeries> lstReturn = new ArrayList<>();
 
-		lstReturn.add(new PieSeries(String.format("%d", theValue), theValue));
-		lstReturn.add(new PieSeries(String.format("%d", theMaxValue - theValue), theMaxValue - theValue));
+		for (int iValue : theValues) {
+			lstReturn.add(new PieSeries(String.format("%d", iValue), iValue));
+		}
 
 		return lstReturn.toArray(new PieSeries[lstReturn.size()]);
 
