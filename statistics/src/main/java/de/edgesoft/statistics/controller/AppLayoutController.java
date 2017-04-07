@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,27 +303,21 @@ public class AppLayoutController {
 		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
 
 		// wins - losses
-		PieSeries[] arrSeries = new PieSeries[2];
-		int iValue = lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size();
-		arrSeries[0] = new PieSeries(String.format("%d", iValue), iValue);
-		iValue = lstMatches.size() - iValue;
-		arrSeries[1] = new PieSeries(String.format("%d", iValue), iValue);
-
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
 				"gewonnen - verloren",
-				arrSeries
+				getPieSeries(
+						lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size(),
+						lstMatches.size()
+						)
 				);
 
-		// home/off
-		arrSeries = new PieSeries[2];
-		iValue = lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size();
-		arrSeries[0] = new PieSeries(String.format("%d", iValue), iValue);
-		iValue = lstMatches.size() - iValue;
-		arrSeries[1] = new PieSeries(String.format("%d", iValue), iValue);
-
+		// home - off
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-off")),
 				"Heim - Auswärts",
-				arrSeries
+				getPieSeries(
+						lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size(),
+						lstMatches.size()
+						)
 				);
 
 	}
@@ -549,6 +544,27 @@ public class AppLayoutController {
 			e.printStackTrace();
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
 		}
+
+	}
+
+	/**
+	 * Returns pie series.
+	 *
+	 * @param theOutputPath output path
+	 * @param theTitle chart title
+	 * @param theSeries chart data
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private PieSeries[] getPieSeries(final int theValue, final int theMaxValue) {
+
+		List<PieSeries> lstReturn = new ArrayList<>();
+
+		lstReturn.add(new PieSeries(String.format("%d", theValue), theValue));
+		lstReturn.add(new PieSeries(String.format("%d", theMaxValue - theValue), theMaxValue - theValue));
+
+		return lstReturn.toArray(new PieSeries[lstReturn.size()]);
 
 	}
 
