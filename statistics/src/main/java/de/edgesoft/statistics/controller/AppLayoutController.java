@@ -22,12 +22,9 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
-import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
-
-import com.sun.javafx.scene.control.behavior.OptionalBoolean;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
@@ -223,6 +220,11 @@ public class AppLayoutController {
 			handleProgramExit();
 		});
 
+
+		// testing
+		handleCreateStatistics();
+		handleProgramExit();
+
 	}
 
 	/**
@@ -300,17 +302,27 @@ public class AppLayoutController {
 		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
 
 		// wins - losses
+		PieSeries[] arrSeries = new PieSeries[2];
+		int iValue = lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size();
+		arrSeries[0] = new PieSeries(String.format("%d", iValue), iValue);
+		iValue = lstMatches.size() - iValue;
+		arrSeries[1] = new PieSeries(String.format("%d", iValue), iValue);
+
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
 				"gewonnen - verloren",
-				new PieSeries("Gewonnen", lstMatches.stream().filter(match -> match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size()),
-				new PieSeries("Verloren", lstMatches.stream().filter(match -> !match.getSetResult().getWon().getValue()).collect(Collectors.toList()).size())
+				arrSeries
 				);
 
 		// home/off
+		arrSeries = new PieSeries[2];
+		iValue = lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size();
+		arrSeries[0] = new PieSeries(String.format("%d", iValue), iValue);
+		iValue = lstMatches.size() - iValue;
+		arrSeries[1] = new PieSeries(String.format("%d", iValue), iValue);
+
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-off")),
 				"Heim - Auswärts",
-				new PieSeries("Heim", lstMatches.stream().filter(match -> match.getHome().getValue()).collect(Collectors.toList()).size()),
-				new PieSeries("Auswärts", lstMatches.stream().filter(match -> !match.getHome().getValue()).collect(Collectors.toList()).size())
+				arrSeries
 				);
 
 	}
