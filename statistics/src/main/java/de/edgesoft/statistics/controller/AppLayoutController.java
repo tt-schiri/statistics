@@ -34,6 +34,7 @@ import org.odftoolkit.simple.table.Table;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
+import de.edgesoft.edgeutils.xchart.Colorschemes;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
@@ -596,7 +597,7 @@ public class AppLayoutController {
 
 		try {
 
-		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty());
+		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(Colorschemes.DIVERGING_2));
 
 		    for (PieSeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
