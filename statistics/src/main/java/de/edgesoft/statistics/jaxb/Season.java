@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import de.edgesoft.edgeutils.commons.ModelClass;
 import de.edgesoft.edgeutils.javafx.SimpleStringPropertyAdapter;
+import de.edgesoft.statistics.model.MatchModel;
 
 
 /**
@@ -45,7 +46,7 @@ public class Season
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(SimpleStringPropertyAdapter.class)
     protected SimpleStringProperty title;
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = MatchModel.class)
     protected List<Match> match;
 
     /**
