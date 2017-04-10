@@ -24,6 +24,7 @@ import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategorySeries;
+import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.XYChart;
@@ -649,7 +650,7 @@ public class AppLayoutController {
 
 		try {
 
-		    XYChart chart = ChartFactory.createStepChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3));
+		    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3), Optional.empty());
 
 		    for (XYSeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
@@ -679,7 +680,8 @@ public class AppLayoutController {
 
 		try {
 
-		    CategoryChart chart = ChartFactory.createStepChart2(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3));
+		    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3),
+		    		Optional.of(CategorySeriesRenderStyle.Scatter), Optional.empty());
 
 		    for (CategorySeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
