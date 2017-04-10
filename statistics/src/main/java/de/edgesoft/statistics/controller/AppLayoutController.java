@@ -22,6 +22,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategorySeries;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.XYChart;
@@ -353,8 +355,6 @@ public class AppLayoutController {
 				);
 
 		// lpz charts
-		List<XYSeries> lstSeries = new ArrayList<>();
-
 	    List<Date> lstDates = new ArrayList<>();
 	    List<Integer> lstLPZ = new ArrayList<>();
 	    Match lastMatch = null;
@@ -367,11 +367,22 @@ public class AppLayoutController {
     	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
     	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
 
+    	List<XYSeries> lstSeries = new ArrayList<>();
 	    lstSeries.add(new XYSeries("LPZ", lstDates, lstLPZ, null));
 
 		writeStepChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz")),
 				"LPZ",
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
+				);
+
+		// lpz charts
+		List<CategorySeries> lstSeries2 = new ArrayList<>();
+
+	    lstSeries2.add(new CategorySeries("LPZ", lstDates, lstLPZ, null));
+
+		writeStepChart2(Paths.get(pathOut.toString(), String.format("%s.png", "lpz2")),
+				"LPZ2",
+				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
 				);
 
 	}
@@ -640,6 +651,36 @@ public class AppLayoutController {
 		    XYChart chart = ChartFactory.createStepChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3));
 
 		    for (XYSeries series : theSeries) {
+		    	chart.getSeriesMap().put(series.getName(), series);
+			}
+
+		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+		}
+
+	}
+
+	/**
+	 * Write step chart.
+	 *
+	 * @param theOutputPath output path
+	 * @param theTitle chart title
+	 * @param theSeries chart data
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void writeStepChart2(final Path theOutputPath, final String theTitle, final CategorySeries... theSeries) {
+
+		try {
+
+		    CategoryChart chart = ChartFactory.createStepChart2(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3));
+
+		    for (CategorySeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
 			}
 
