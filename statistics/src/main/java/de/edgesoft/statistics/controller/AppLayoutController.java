@@ -322,27 +322,30 @@ public class AppLayoutController {
 
 		// pie charts
 
-		// wins/losses
-		writePieChart(pathOut, "win-loss",
-				"+/-",
-				getPieSeries(
-						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
-				);
-
 		// home/off
 		writePieChart(pathOut, "home-off",
 				"Heim - Auswärts",
+				Optional.of(Colorschemes.Paired_qualitative_2),
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size()
 						)
 				);
 
+		// wins/losses
+		writePieChart(pathOut, "win-loss",
+				"+/-",
+				Optional.empty(),
+				getPieSeries(
+						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size()
+						)
+				);
+
 		// home - wins/losses
 		writePieChart(pathOut, "home-win-loss",
 				"Heim: +/-",
+				Optional.empty(),
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -352,6 +355,7 @@ public class AppLayoutController {
 		// off - wins/losses
 		writePieChart(pathOut, "off-win-loss",
 				"Auswärts: +/-",
+				Optional.empty(),
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -365,6 +369,7 @@ public class AppLayoutController {
 
 			writePieChart(pathOut, String.format("%d-sets-win-loss", i + 3),
 					String.format("%d Sätze: +/-", i + 3),
+					Optional.empty(),
 					getPieSeries(
 							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -385,6 +390,7 @@ public class AppLayoutController {
 
 			writePieChart(pathOut, String.format("set-%d-win-loss", i),
 					String.format("Satz %d: +/-", i),
+					Optional.empty(),
 					getPieSeries(
 							lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size(),
 							lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size()
@@ -392,6 +398,26 @@ public class AppLayoutController {
 					);
 
 		}
+
+		// strong opponent - wins/losses
+		writePieChart(pathOut, "opp-strong-win-loss",
+				"Starker Gegner: +/-",
+				Optional.empty(),
+				getPieSeries(
+						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size()
+						)
+				);
+
+		// weak opponent - wins/losses
+		writePieChart(pathOut, "opp-weak-win-loss",
+				"Schwacher Gegner: +/-",
+				Optional.empty(),
+				getPieSeries(
+						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size(),
+						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size()
+						)
+				);
 
 		// lpz chart
 	    List<Date> lstDates = new ArrayList<>();
@@ -427,6 +453,7 @@ public class AppLayoutController {
 
 		writeXYChart(pathOut, "lpz",
 				"Live-PZ",
+				Optional.empty(),
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
 
@@ -435,6 +462,7 @@ public class AppLayoutController {
 
 		writeXYChart(pathOut, "lpz-change",
 				"Live-PZ-Änderung",
+				Optional.empty(),
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
 
@@ -445,6 +473,7 @@ public class AppLayoutController {
 
 		writeCategoryChart(pathOut, "lpz2",
 				"Live-PZ 2",
+				Optional.empty(),
 				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
 				);
 
@@ -673,14 +702,15 @@ public class AppLayoutController {
 	 * @param theOutputPath output path
 	 * @param theFilename filename
 	 * @param theTitle chart title
+	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writePieChart(final Path theOutputPath, final String theFilename, final String theTitle, final PieSeries... theSeries) {
+	private void writePieChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
 
-	    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(Colorschemes.DIVERGING_2));
+	    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(theColorscheme.orElse(Colorschemes.PiYG_diverging_2)));
 
 	    for (PieSeries series : theSeries) {
 	    	chart.getSeriesMap().put(series.getName(), series);
@@ -696,14 +726,15 @@ public class AppLayoutController {
 	 * @param theOutputPath output path
 	 * @param theFilename filename
 	 * @param theTitle chart title
+	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeXYChart(final Path theOutputPath, final String theFilename, final String theTitle, final XYSeries... theSeries) {
+	private void writeXYChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
 
-	    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), Optional.empty());
+	    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), theColorscheme);
 
 	    for (XYSeries series : theSeries) {
 	    	chart.getSeriesMap().put(series.getName(), series);
@@ -721,15 +752,16 @@ public class AppLayoutController {
 	 * @param theOutputPath output path
 	 * @param theFilename filename
 	 * @param theTitle chart title
+	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeCategoryChart(final Path theOutputPath, final String theFilename, final String theTitle, final CategorySeries... theSeries) {
+	private void writeCategoryChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
 
 	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
-	    		Optional.of(CategorySeriesRenderStyle.Scatter), Optional.empty());
+	    		Optional.of(CategorySeriesRenderStyle.Scatter), theColorscheme);
 
 	    for (CategorySeries series : theSeries) {
 	    	chart.getSeriesMap().put(series.getName(), series);
