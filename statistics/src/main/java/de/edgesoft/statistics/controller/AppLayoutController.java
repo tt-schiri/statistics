@@ -358,6 +358,21 @@ public class AppLayoutController {
 						)
 				);
 
+		// number of sets
+		for (int i = 0; i <= 2; i++) {
+
+			final int count = i;
+
+			writePieChart(pathOut, String.format("%d-sets-win-loss", i + 3),
+					String.format("%d Sätze: +/-", i + 3),
+					getPieSeries(
+							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size(),
+							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size()
+							)
+					);
+
+		}
+
 		// set results
 		for (int i = 1; i <= 5; i++) {
 
