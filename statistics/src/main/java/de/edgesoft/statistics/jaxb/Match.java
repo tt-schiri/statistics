@@ -18,12 +18,13 @@ import de.edgesoft.edgeutils.javafx.SimpleBooleanPropertyAdapter;
 import de.edgesoft.edgeutils.javafx.SimpleIntegerPropertyAdapter;
 import de.edgesoft.edgeutils.javafx.SimpleObjectPropertyLocalDateAdapter;
 import de.edgesoft.edgeutils.javafx.SimpleStringPropertyAdapter;
+import de.edgesoft.statistics.model.SetModel;
 
 
 /**
- * <p>Java class for Match complex type.
+ * <p>Java-Klasse für Match complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="Match">
@@ -34,7 +35,7 @@ import de.edgesoft.edgeutils.javafx.SimpleStringPropertyAdapter;
  *         &lt;element name="title" type="{}StringProperty"/>
  *         &lt;element name="home" type="{}BooleanProperty"/>
  *         &lt;element name="set" type="{}Set" maxOccurs="5"/>
- *         &lt;element name="set-result" type="{}Result"/>
+ *         &lt;element name="result" type="{}Result"/>
  *         &lt;element name="live-pz-before" type="{}IntegerProperty"/>
  *         &lt;element name="live-pz-other" type="{}IntegerProperty"/>
  *         &lt;element name="live-pz-diff" type="{}IntegerProperty"/>
@@ -53,7 +54,7 @@ import de.edgesoft.edgeutils.javafx.SimpleStringPropertyAdapter;
     "title",
     "home",
     "set",
-    "setResult",
+    "result",
     "livePzBefore",
     "livePzOther",
     "livePzDiff",
@@ -74,10 +75,10 @@ public class Match
     @XmlJavaTypeAdapter(SimpleBooleanPropertyAdapter.class)
     @XmlSchemaType(name = "boolean")
     protected SimpleBooleanProperty home;
-    @XmlElement(required = true)
+    @XmlElement(required = true, type = SetModel.class)
     protected List<Set> set;
-    @XmlElement(name = "set-result", required = true)
-    protected Result setResult;
+    @XmlElement(required = true)
+    protected Result result;
     @XmlElement(name = "live-pz-before", required = true, type = String.class)
     @XmlJavaTypeAdapter(SimpleIntegerPropertyAdapter.class)
     @XmlSchemaType(name = "int")
@@ -96,7 +97,7 @@ public class Match
     protected SimpleIntegerProperty livePzAfter;
 
     /**
-     * Gets the value of the date property.
+     * Ruft den Wert der date-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -108,7 +109,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the date property.
+     * Legt den Wert der date-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -120,7 +121,7 @@ public class Match
     }
 
     /**
-     * Gets the value of the title property.
+     * Ruft den Wert der title-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -132,7 +133,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the title property.
+     * Legt den Wert der title-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -144,7 +145,7 @@ public class Match
     }
 
     /**
-     * Gets the value of the home property.
+     * Ruft den Wert der home-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -156,7 +157,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the home property.
+     * Legt den Wert der home-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -197,31 +198,31 @@ public class Match
     }
 
     /**
-     * Gets the value of the setResult property.
+     * Ruft den Wert der result-Eigenschaft ab.
      * 
      * @return
      *     possible object is
      *     {@link Result }
      *     
      */
-    public Result getSetResult() {
-        return setResult;
+    public Result getResult() {
+        return result;
     }
 
     /**
-     * Sets the value of the setResult property.
+     * Legt den Wert der result-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
      *     {@link Result }
      *     
      */
-    public void setSetResult(Result value) {
-        this.setResult = value;
+    public void setResult(Result value) {
+        this.result = value;
     }
 
     /**
-     * Gets the value of the livePzBefore property.
+     * Ruft den Wert der livePzBefore-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -233,7 +234,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the livePzBefore property.
+     * Legt den Wert der livePzBefore-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -245,7 +246,7 @@ public class Match
     }
 
     /**
-     * Gets the value of the livePzOther property.
+     * Ruft den Wert der livePzOther-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -257,7 +258,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the livePzOther property.
+     * Legt den Wert der livePzOther-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -269,7 +270,7 @@ public class Match
     }
 
     /**
-     * Gets the value of the livePzDiff property.
+     * Ruft den Wert der livePzDiff-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -281,7 +282,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the livePzDiff property.
+     * Legt den Wert der livePzDiff-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -293,7 +294,7 @@ public class Match
     }
 
     /**
-     * Gets the value of the livePzAfter property.
+     * Ruft den Wert der livePzAfter-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -305,7 +306,7 @@ public class Match
     }
 
     /**
-     * Sets the value of the livePzAfter property.
+     * Legt den Wert der livePzAfter-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -2,10 +2,10 @@ package de.edgesoft.statistics.model;
 
 import java.util.function.Predicate;
 
-import de.edgesoft.statistics.jaxb.Match;
+import de.edgesoft.statistics.jaxb.Set;
 
 /**
- * Match model, additional methods for jaxb model class.
+ * Set model, additional methods for jaxb model class.
  *
  * Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
  *
@@ -32,39 +32,23 @@ import de.edgesoft.statistics.jaxb.Match;
  * @version 0.5.0
  * @since 0.5.0
  */
-public class MatchModel extends Match {
+public class SetModel extends Set {
 
 	/**
-	 * Filter predicate for home games.
+	 * Filter predicate for won sets.
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	public static Predicate<Match> HOME = match -> match.getHome().getValue();
+	public static Predicate<Set> WON = set -> set.getResult().getWon().getValue();
 
 	/**
-	 * Filter predicate for off games.
+	 * Filter predicate for lost sets.
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	public static Predicate<Match> OFF = HOME.negate();
-
-	/**
-	 * Filter predicate for won games.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
-	 */
-	public static Predicate<Match> WON = match -> match.getResult().getWon().getValue();
-
-	/**
-	 * Filter predicate for lost games.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
-	 */
-	public static Predicate<Match> LOST = WON.negate();
+	public static Predicate<Set> LOST = WON.negate();
 
 }
 

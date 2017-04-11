@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 import de.edgesoft.statistics.model.MatchModel;
+import de.edgesoft.statistics.model.SetModel;
 
 
 /**
@@ -47,7 +48,7 @@ public class ObjectFactory {
      * 
      */
     public Set createSet() {
-        return new Set();
+        return new SetModel();
     }
 
     /**

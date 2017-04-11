@@ -86,7 +86,7 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 					<xsd:element name="home" type="BooleanProperty" minOccurs="1" maxOccurs="1" />
 
 					<xsd:element name="set" type="Set" minOccurs="1" maxOccurs="5" />
-					<xsd:element name="set-result" type="Result" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="result" type="Result" minOccurs="1" maxOccurs="1" />
 
 					<xsd:element name="live-pz-before" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
 					<xsd:element name="live-pz-other" type="IntegerProperty" minOccurs="1" maxOccurs="1" />

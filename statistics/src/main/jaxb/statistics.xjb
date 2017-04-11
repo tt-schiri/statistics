@@ -42,6 +42,9 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 		<jxb:bindings node="//xsd:complexType[@name='Match']">
 			<jxb:class implClass="de.edgesoft.statistics.model.MatchModel" />
 		</jxb:bindings>
+		<jxb:bindings node="//xsd:complexType[@name='Set']">
+			<jxb:class implClass="de.edgesoft.statistics.model.SetModel" />
+		</jxb:bindings>
 
 	</jxb:bindings>
 

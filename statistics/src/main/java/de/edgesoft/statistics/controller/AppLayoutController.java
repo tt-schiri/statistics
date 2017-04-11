@@ -29,6 +29,7 @@ import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.internal.chartpart.Chart;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
@@ -44,6 +45,7 @@ import de.edgesoft.statistics.jaxb.Result;
 import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.jaxb.Set;
 import de.edgesoft.statistics.model.MatchModel;
+import de.edgesoft.statistics.model.SetModel;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
 import de.edgesoft.statistics.utils.Prefs;
@@ -321,7 +323,7 @@ public class AppLayoutController {
 		// pie charts
 
 		// wins/losses
-		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
+		writePieChart(pathOut, "win-loss",
 				"+/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
@@ -330,7 +332,7 @@ public class AppLayoutController {
 				);
 
 		// home/off
-		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-off")),
+		writePieChart(pathOut, "home-off",
 				"Heim - Auswärts",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size(),
@@ -339,7 +341,7 @@ public class AppLayoutController {
 				);
 
 		// home - wins/losses
-		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-win-loss")),
+		writePieChart(pathOut, "home-win-loss",
 				"Heim: +/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size(),
@@ -348,13 +350,33 @@ public class AppLayoutController {
 				);
 
 		// off - wins/losses
-		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "off-win-loss")),
+		writePieChart(pathOut, "off-win-loss",
 				"Auswärts: +/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
 						)
 				);
+
+		// set results
+		for (int i = 1; i <= 5; i++) {
+
+			List<Set> lstSets = new ArrayList<>();
+			for (Match theMatch : lstMatches) {
+				if (theMatch.getSet().size() >= i) {
+					lstSets.add(theMatch.getSet().get(i - 1));
+				}
+			}
+
+			writePieChart(pathOut, String.format("set-%d-win-loss", i),
+					String.format("Satz %d: +/-", i),
+					getPieSeries(
+							lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size(),
+							lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size()
+							)
+					);
+
+		}
 
 		// lpz chart
 	    List<Date> lstDates = new ArrayList<>();
@@ -388,7 +410,7 @@ public class AppLayoutController {
     	List<XYSeries> lstSeries = new ArrayList<>();
 	    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeXYChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz")),
+		writeXYChart(pathOut, "lpz",
 				"Live-PZ",
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
@@ -396,7 +418,7 @@ public class AppLayoutController {
     	lstSeries = new ArrayList<>();
 	    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
 
-		writeXYChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz-change")),
+		writeXYChart(pathOut, "lpz-change",
 				"Live-PZ-Änderung",
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
@@ -406,7 +428,7 @@ public class AppLayoutController {
 
 	    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeCategoryChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz2")),
+		writeCategoryChart(pathOut, "lpz2",
 				"Live-PZ 2",
 				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
 				);
@@ -489,13 +511,13 @@ public class AppLayoutController {
 				theResult.setWon(new SimpleBooleanProperty(record.get("Sets").equals("+")));
 				theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(record.get("SetsP"))));
 
-				theMatch.setSetResult(theResult);
+				theMatch.setResult(theResult);
 
 				theSeason.getMatch().add(theMatch);
 
 				txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
 						theSeason.getMatch().size(), theMatch.getTitle().getValue(),
-						theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
+						theMatch.getResult().getWon().getValue() ? "gewonnen" : "verloren"
 						));
 
 			}
@@ -584,13 +606,13 @@ public class AppLayoutController {
 					theResult.setWon(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("Sets")).getDisplayText().equals("+")));
 					theResult.setNumber(new SimpleIntegerProperty(Integer.parseInt(theRow.getCellByIndex(mapHeader.get("SetsP")).getDisplayText())));
 
-					theMatch.setSetResult(theResult);
+					theMatch.setResult(theResult);
 
 					theSeason.getMatch().add(theMatch);
 
 					txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
 							theSeason.getMatch().size(), theMatch.getTitle().getValue(),
-							theMatch.getSetResult().getWon().getValue() ? "gewonnen" : "verloren"
+							theMatch.getResult().getWon().getValue() ? "gewonnen" : "verloren"
 							));
 
 				}
@@ -605,36 +627,6 @@ public class AppLayoutController {
 		}
 
 		return theContent;
-
-	}
-
-	/**
-	 * Write pie chart.
-	 *
-	 * @param theOutputPath output path
-	 * @param theTitle chart title
-	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
-	 */
-	private void writePieChart(final Path theOutputPath, final String theTitle, final PieSeries... theSeries) {
-
-		try {
-
-		    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(Colorschemes.DIVERGING_2));
-
-		    for (PieSeries series : theSeries) {
-		    	chart.getSeriesMap().put(series.getName(), series);
-			}
-
-		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
-		}
 
 	}
 
@@ -661,34 +653,50 @@ public class AppLayoutController {
 	}
 
 	/**
-	 * Write xy chart.
+	 * Write pie chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theFilename filename
 	 * @param theTitle chart title
 	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeXYChart(final Path theOutputPath, final String theTitle, final XYSeries... theSeries) {
+	private void writePieChart(final Path theOutputPath, final String theFilename, final String theTitle, final PieSeries... theSeries) {
 
-		try {
+	    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(Colorschemes.DIVERGING_2));
 
-		    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), Optional.empty());
-
-		    for (XYSeries series : theSeries) {
-		    	chart.getSeriesMap().put(series.getName(), series);
-			}
-
-		    chart.getStyler().setMarkerSize(4);
-
-		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+	    for (PieSeries series : theSeries) {
+	    	chart.getSeriesMap().put(series.getName(), series);
 		}
+
+	    writeChart(theOutputPath, theFilename, chart);
+
+	}
+
+	/**
+	 * Write xy chart.
+	 *
+	 * @param theOutputPath output path
+	 * @param theFilename filename
+	 * @param theTitle chart title
+	 * @param theSeries chart data
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void writeXYChart(final Path theOutputPath, final String theFilename, final String theTitle, final XYSeries... theSeries) {
+
+	    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), Optional.empty());
+
+	    for (XYSeries series : theSeries) {
+	    	chart.getSeriesMap().put(series.getName(), series);
+		}
+
+	    chart.getStyler().setMarkerSize(4);
+
+	    writeChart(theOutputPath, theFilename, chart);
 
 	}
 
@@ -696,24 +704,42 @@ public class AppLayoutController {
 	 * Write category chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theFilename filename
 	 * @param theTitle chart title
 	 * @param theSeries chart data
 	 *
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeCategoryChart(final Path theOutputPath, final String theTitle, final CategorySeries... theSeries) {
+	private void writeCategoryChart(final Path theOutputPath, final String theFilename, final String theTitle, final CategorySeries... theSeries) {
+
+	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
+	    		Optional.of(CategorySeriesRenderStyle.Scatter), Optional.empty());
+
+	    for (CategorySeries series : theSeries) {
+	    	chart.getSeriesMap().put(series.getName(), series);
+		}
+
+	    writeChart(theOutputPath, theFilename, chart);
+
+	}
+
+	/**
+	 * Write chart.
+	 *
+	 * @param theOutputPath output path
+	 * @param theFilename filename
+	 * @param theChart chart
+	 * @param theSeries chart data
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void writeChart(final Path theOutputPath, final String theFilename, final Chart<?, ?> theChart) {
 
 		try {
 
-		    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
-		    		Optional.of(CategorySeriesRenderStyle.Scatter), Optional.empty());
-
-		    for (CategorySeries series : theSeries) {
-		    	chart.getSeriesMap().put(series.getName(), series);
-			}
-
-		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
+		    BitmapEncoder.saveBitmap(theChart, Paths.get(theOutputPath.toString(), String.format("%s.png", theFilename)).toString(), BitmapFormat.PNG);
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
 
 		} catch (IOException e) {
