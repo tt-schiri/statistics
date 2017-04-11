@@ -356,34 +356,58 @@ public class AppLayoutController {
 						)
 				);
 
-		// lpz charts
+		// lpz chart
 	    List<Date> lstDates = new ArrayList<>();
 	    List<Integer> lstLPZ = new ArrayList<>();
+	    List<Integer> lstLPZ0 = new ArrayList<>();
 	    Match lastMatch = null;
 
-	    for (Match theMatch : lstMatches) {
-	    	lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
-	    	lstLPZ.add(theMatch.getLivePzBefore().getValue());
-	    	lastMatch = theMatch;
+	    if (!lstMatches.isEmpty()) {
+
+	    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
+    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
+	    	lstLPZ0.add(0);
+
+	    	for (Match theMatch : lstMatches) {
+
+	    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
+	    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
+	    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
+
+	    		lastMatch = theMatch;
+
+	    	}
+
+	    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
+	    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
+    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
+
 	    }
-    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
-    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
+
 
     	List<XYSeries> lstSeries = new ArrayList<>();
-	    lstSeries.add(new XYSeries("LPZ", lstDates, lstLPZ, null));
+	    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeStepChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz")),
-				"LPZ",
+		writeXYChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz")),
+				"Live-PZ",
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
 				);
 
-		// lpz charts
+    	lstSeries = new ArrayList<>();
+	    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
+
+		writeXYChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz-change")),
+				"Live-PZ-Änderung",
+				lstSeries.toArray(new XYSeries[lstSeries.size()])
+				);
+
+		// lpz chart
 		List<CategorySeries> lstSeries2 = new ArrayList<>();
 
-	    lstSeries2.add(new CategorySeries("LPZ", lstDates, lstLPZ, null));
+	    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeStepChart2(Paths.get(pathOut.toString(), String.format("%s.png", "lpz2")),
-				"LPZ2",
+		writeCategoryChart(Paths.get(pathOut.toString(), String.format("%s.png", "lpz2")),
+				"Live-PZ 2",
 				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
 				);
 
@@ -637,7 +661,7 @@ public class AppLayoutController {
 	}
 
 	/**
-	 * Write step chart.
+	 * Write xy chart.
 	 *
 	 * @param theOutputPath output path
 	 * @param theTitle chart title
@@ -646,7 +670,7 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeStepChart(final Path theOutputPath, final String theTitle, final XYSeries... theSeries) {
+	private void writeXYChart(final Path theOutputPath, final String theTitle, final XYSeries... theSeries) {
 
 		try {
 
@@ -655,6 +679,8 @@ public class AppLayoutController {
 		    for (XYSeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
 			}
+
+		    chart.getStyler().setMarkerSize(4);
 
 		    BitmapEncoder.saveBitmap(chart, theOutputPath.toString(), BitmapFormat.PNG);
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
@@ -667,7 +693,7 @@ public class AppLayoutController {
 	}
 
 	/**
-	 * Write step chart.
+	 * Write category chart.
 	 *
 	 * @param theOutputPath output path
 	 * @param theTitle chart title
@@ -676,11 +702,11 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeStepChart2(final Path theOutputPath, final String theTitle, final CategorySeries... theSeries) {
+	private void writeCategoryChart(final Path theOutputPath, final String theTitle, final CategorySeries... theSeries) {
 
 		try {
 
-		    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3),
+		    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
 		    		Optional.of(CategorySeriesRenderStyle.Scatter), Optional.empty());
 
 		    for (CategorySeries series : theSeries) {
