@@ -107,7 +107,7 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	public static final int CHARTSIZE = 220;
+	public static final int CHARTSIZE = 150;
 
 	/**
 	 * Application icon.
@@ -322,7 +322,7 @@ public class AppLayoutController {
 
 		// wins/losses
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "win-loss")),
-				"gewonnen - verloren",
+				"+/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -340,7 +340,7 @@ public class AppLayoutController {
 
 		// home - wins/losses
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "home-win-loss")),
-				"Heim: gewonnen - verloren",
+				"Heim: +/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -349,7 +349,7 @@ public class AppLayoutController {
 
 		// off - wins/losses
 		writePieChart(Paths.get(pathOut.toString(), String.format("%s.png", "off-win-loss")),
-				"Auswärts: gewonnen - verloren",
+				"Auswärts: +/-",
 				getPieSeries(
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
 						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
@@ -650,7 +650,7 @@ public class AppLayoutController {
 
 		try {
 
-		    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*3), Optional.empty());
+		    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), Optional.empty());
 
 		    for (XYSeries series : theSeries) {
 		    	chart.getSeriesMap().put(series.getName(), series);
