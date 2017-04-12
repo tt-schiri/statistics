@@ -318,12 +318,13 @@ public class AppLayoutController {
 		Path pathOut = Paths.get(txtOutpath.getText());
 		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
 
-		List<Match> lstMatches = theContent.getSeason().get(theContent.getSeason().size() - 1).getMatch();
+		Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
+		List<Match> lstMatches = theSeason.getMatch();
 
 		// pie charts
 
 		// home/off
-		writePieChart(pathOut, "home-off",
+		writePieChart(pathOut, theSeason, "home-off",
 				"Heim - Auswärts",
 				Optional.of(Colorschemes.Paired_qualitative_2),
 				getPieSeries(
@@ -333,7 +334,7 @@ public class AppLayoutController {
 				);
 
 		// wins/losses
-		writePieChart(pathOut, "win-loss",
+		writePieChart(pathOut, theSeason, "win-loss",
 				"+/-",
 				Optional.empty(),
 				getPieSeries(
@@ -343,7 +344,7 @@ public class AppLayoutController {
 				);
 
 		// home - wins/losses
-		writePieChart(pathOut, "home-win-loss",
+		writePieChart(pathOut, theSeason, "home-win-loss",
 				"Heim: +/-",
 				Optional.empty(),
 				getPieSeries(
@@ -353,7 +354,7 @@ public class AppLayoutController {
 				);
 
 		// off - wins/losses
-		writePieChart(pathOut, "off-win-loss",
+		writePieChart(pathOut, theSeason, "off-win-loss",
 				"Auswärts: +/-",
 				Optional.empty(),
 				getPieSeries(
@@ -367,7 +368,7 @@ public class AppLayoutController {
 
 			final int count = i;
 
-			writePieChart(pathOut, String.format("%d-sets-win-loss", i + 3),
+			writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", i + 3),
 					String.format("%d Sätze: +/-", i + 3),
 					Optional.empty(),
 					getPieSeries(
@@ -388,7 +389,7 @@ public class AppLayoutController {
 				}
 			}
 
-			writePieChart(pathOut, String.format("set-%d-win-loss", i),
+			writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", i),
 					String.format("Satz %d: +/-", i),
 					Optional.empty(),
 					getPieSeries(
@@ -400,7 +401,7 @@ public class AppLayoutController {
 		}
 
 		// strong opponent - wins/losses
-		writePieChart(pathOut, "opp-strong-win-loss",
+		writePieChart(pathOut, theSeason, "opp-strong-win-loss",
 				"Starker Gegner: +/-",
 				Optional.empty(),
 				getPieSeries(
@@ -410,7 +411,7 @@ public class AppLayoutController {
 				);
 
 		// weak opponent - wins/losses
-		writePieChart(pathOut, "opp-weak-win-loss",
+		writePieChart(pathOut, theSeason, "opp-weak-win-loss",
 				"Schwacher Gegner: +/-",
 				Optional.empty(),
 				getPieSeries(
@@ -451,7 +452,7 @@ public class AppLayoutController {
     	List<XYSeries> lstSeries = new ArrayList<>();
 	    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeXYChart(pathOut, "lpz",
+		writeXYChart(pathOut, theSeason, "lpz",
 				"Live-PZ",
 				Optional.empty(),
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
@@ -460,7 +461,7 @@ public class AppLayoutController {
     	lstSeries = new ArrayList<>();
 	    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
 
-		writeXYChart(pathOut, "lpz-change",
+		writeXYChart(pathOut, theSeason, "lpz-change",
 				"Live-PZ-Änderung",
 				Optional.empty(),
 				lstSeries.toArray(new XYSeries[lstSeries.size()])
@@ -471,7 +472,7 @@ public class AppLayoutController {
 
 	    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeCategoryChart(pathOut, "lpz2",
+		writeCategoryChart(pathOut, theSeason, "lpz2",
 				"Live-PZ 2",
 				Optional.empty(),
 				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
@@ -505,7 +506,7 @@ public class AppLayoutController {
 		Content theContent = new ObjectFactory().createContent();
 
 		Season theSeason = new ObjectFactory().createSeason();
-		theSeason.setTitle(new SimpleStringProperty("temp"));
+		theSeason.setTitle(new SimpleStringProperty(theInputPath.getFileName().toString().substring(0, theInputPath.getFileName().toString().indexOf('.'))));
 		theContent.getSeason().add(theSeason);
 
 		try (Reader in = new InputStreamReader(new FileInputStream(theInputPath.toFile()), StandardCharsets.UTF_8)) {
@@ -569,6 +570,7 @@ public class AppLayoutController {
 		} catch (IOException | IllegalStateException e) {
 			e.printStackTrace();
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+			return null;
 		}
 
 		return theContent;
@@ -668,6 +670,7 @@ public class AppLayoutController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+			return null;
 		}
 
 		return theContent;
@@ -700,6 +703,7 @@ public class AppLayoutController {
 	 * Write pie chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theSeason season
 	 * @param theFilename filename
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
@@ -708,7 +712,8 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writePieChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
+	private void writePieChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
+			final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
 
 	    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(theColorscheme.orElse(Colorschemes.PiYG_diverging_2)));
 
@@ -716,7 +721,7 @@ public class AppLayoutController {
 	    	chart.getSeriesMap().put(series.getName(), series);
 		}
 
-	    writeChart(theOutputPath, theFilename, chart);
+	    writeChart(theOutputPath, theSeason, theFilename, chart);
 
 	}
 
@@ -724,6 +729,7 @@ public class AppLayoutController {
 	 * Write xy chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theSeason season
 	 * @param theFilename filename
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
@@ -732,7 +738,8 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeXYChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
+	private void writeXYChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
+			final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
 
 	    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), theColorscheme);
 
@@ -742,7 +749,7 @@ public class AppLayoutController {
 
 	    chart.getStyler().setMarkerSize(4);
 
-	    writeChart(theOutputPath, theFilename, chart);
+	    writeChart(theOutputPath, theSeason, theFilename, chart);
 
 	}
 
@@ -750,6 +757,7 @@ public class AppLayoutController {
 	 * Write category chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theSeason season
 	 * @param theFilename filename
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
@@ -758,7 +766,8 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeCategoryChart(final Path theOutputPath, final String theFilename, final String theTitle, final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
+	private void writeCategoryChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
+			final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
 
 	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
 	    		Optional.of(CategorySeriesRenderStyle.Scatter), theColorscheme);
@@ -767,7 +776,7 @@ public class AppLayoutController {
 	    	chart.getSeriesMap().put(series.getName(), series);
 		}
 
-	    writeChart(theOutputPath, theFilename, chart);
+	    writeChart(theOutputPath, theSeason, theFilename, chart);
 
 	}
 
@@ -775,6 +784,7 @@ public class AppLayoutController {
 	 * Write chart.
 	 *
 	 * @param theOutputPath output path
+	 * @param theSeason season
 	 * @param theFilename filename
 	 * @param theChart chart
 	 * @param theSeries chart data
@@ -782,12 +792,15 @@ public class AppLayoutController {
 	 * @version 0.5.0
 	 * @since 0.5.0
 	 */
-	private void writeChart(final Path theOutputPath, final String theFilename, final Chart<?, ?> theChart) {
+	private void writeChart(final Path theOutputPath, final Season theSeason, final String theFilename, final Chart<?, ?> theChart) {
 
 		try {
 
-		    BitmapEncoder.saveBitmap(theChart, Paths.get(theOutputPath.toString(), String.format("%s.png", theFilename)).toString(), BitmapFormat.PNG);
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), theOutputPath.toString()));
+			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s.png", theSeason.getTitle().getValue(), theFilename)).normalize();
+
+		    BitmapEncoder.saveBitmap(theChart, pathOut.toString(), BitmapFormat.PNG);
+
+			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), pathOut.toString()));
 
 		} catch (IOException e) {
 			e.printStackTrace();
