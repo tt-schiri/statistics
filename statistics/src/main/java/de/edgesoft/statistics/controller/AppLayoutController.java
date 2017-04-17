@@ -327,40 +327,32 @@ public class AppLayoutController {
 		writePieChart(pathOut, theSeason, "home-off",
 				"Heim - Auswärts",
 				Optional.of(Colorschemes.Paired_qualitative_2),
-				getPieSeries(
-						lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size()
-						)
+				new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
+				new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
 				);
 
 		// wins/losses
 		writePieChart(pathOut, theSeason, "win-loss",
 				"+/-",
 				Optional.empty(),
-				getPieSeries(
-						lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
+				new PieSeries("+", lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
+				new PieSeries("-", lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
 
 		// home - wins/losses
 		writePieChart(pathOut, theSeason, "home-win-loss",
 				"Heim: +/-",
 				Optional.empty(),
-				getPieSeries(
-						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
+				new PieSeries("+", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+				new PieSeries("-", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
 
 		// off - wins/losses
 		writePieChart(pathOut, theSeason, "off-win-loss",
 				"Auswärts: +/-",
 				Optional.empty(),
-				getPieSeries(
-						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
+				new PieSeries("+", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+				new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
 
 		// number of sets
@@ -371,10 +363,8 @@ public class AppLayoutController {
 			writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", i + 3),
 					String.format("%d Sätze: +/-", i + 3),
 					Optional.empty(),
-					getPieSeries(
-							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size(),
-							lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size()
-							)
+					new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 					);
 
 		}
@@ -392,10 +382,8 @@ public class AppLayoutController {
 			writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", i),
 					String.format("Satz %d: +/-", i),
 					Optional.empty(),
-					getPieSeries(
-							lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size(),
-							lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size()
-							)
+					new PieSeries("+", lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
 					);
 
 		}
@@ -404,20 +392,16 @@ public class AppLayoutController {
 		writePieChart(pathOut, theSeason, "opp-strong-win-loss",
 				"Starker Gegner: +/-",
 				Optional.empty(),
-				getPieSeries(
-						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
+				new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+				new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
 
 		// weak opponent - wins/losses
 		writePieChart(pathOut, theSeason, "opp-weak-win-loss",
 				"Schwacher Gegner: +/-",
 				Optional.empty(),
-				getPieSeries(
-						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size(),
-						lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size()
-						)
+				new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+				new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
 
 		// lpz chart
@@ -674,28 +658,6 @@ public class AppLayoutController {
 		}
 
 		return theContent;
-
-	}
-
-	/**
-	 * Returns pie series.
-	 *
-	 * @param theOutputPath output path
-	 * @param theTitle chart title
-	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
-	 */
-	private PieSeries[] getPieSeries(final int... theValues) {
-
-		List<PieSeries> lstReturn = new ArrayList<>();
-
-		for (int iValue : theValues) {
-			lstReturn.add(new PieSeries(String.format("%d", iValue), iValue));
-		}
-
-		return lstReturn.toArray(new PieSeries[lstReturn.size()]);
 
 	}
 
