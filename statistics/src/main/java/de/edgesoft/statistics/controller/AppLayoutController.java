@@ -1,5 +1,6 @@
 package de.edgesoft.statistics.controller;
 
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,10 +11,12 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -110,6 +113,14 @@ public class AppLayoutController {
 	 * @since 0.5.0
 	 */
 	public static final int CHARTSIZE = 150;
+
+	/**
+	 * Result format.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	public static final String RESULT_FORMAT = "%d:%d";
 
 	/**
 	 * Application icon.
@@ -403,6 +414,40 @@ public class AppLayoutController {
 				new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
 				new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				);
+
+		// after certain set result
+		Map<String, List<Match>> mapResultMatches = new HashMap<>();
+		for (Match theMatch : lstMatches) {
+			int iWon = 0;
+			int iLost = 0;
+
+			for (Set theSet : theMatch.getSet()) {
+				if (SetModel.WON.test(theSet)) {
+					iWon++;
+				} else {
+					iLost++;
+				}
+
+				if ((iWon < 3) && (iLost < 3)) {
+					String sKey = String.format(RESULT_FORMAT, iWon, iLost);
+					mapResultMatches.computeIfAbsent(sKey, list -> new ArrayList<>());
+					mapResultMatches.get(sKey).add(theMatch);
+				}
+
+			}
+
+		}
+
+    	for (Entry<String, List<Match>> theResultMatch : mapResultMatches.entrySet()) {
+    		writePieChart(pathOut, theSeason, String.format("%s-win-loss", theResultMatch.getKey().replace(':', '-')),
+    				String.format("%s: +/-", theResultMatch.getKey()),
+    				Optional.empty(),
+    				new PieSeries("+", theResultMatch.getValue().stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
+    				new PieSeries("-", theResultMatch.getValue().stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
+    				);
+    	}
+
+
 
 		// lpz chart
 	    List<Date> lstDates = new ArrayList<>();
@@ -732,11 +777,20 @@ public class AppLayoutController {
 			final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
 
 	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
-	    		Optional.of(CategorySeriesRenderStyle.Scatter), theColorscheme);
+	    		Optional.empty(), theColorscheme);
+
+	    List<Integer> lstMin = new ArrayList<>();
 
 	    for (CategorySeries series : theSeries) {
+	    	series.setFillColor(new Color(0, 0, 0, 0));
+	    	series.setChartCategorySeriesRenderStyle(CategorySeriesRenderStyle.SteppedBar);
+
+	    	lstMin.add(((Collection<Integer>) series.getYData()).stream().min(Integer::compare).get());
+
 	    	chart.getSeriesMap().put(series.getName(), series);
 		}
+
+	    chart.getStyler().setYAxisMin(lstMin.stream().min(Integer::compare).get().doubleValue());
 
 	    writeChart(theOutputPath, theSeason, theFilename, chart);
 
