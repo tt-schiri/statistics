@@ -252,8 +252,8 @@ public class AppLayoutController {
 
 
 		// testing
-		handleCreateStatistics();
-		handleProgramExit();
+//		handleCreateStatistics();
+//		handleProgramExit();
 
 	}
 
@@ -371,8 +371,8 @@ public class AppLayoutController {
 
 			final int count = i;
 
-			writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", i + 3),
-					String.format("%d Sätze: +/-", i + 3),
+			writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", count + 3),
+					String.format("%d Sätze: +/-", count + 3),
 					Optional.empty(),
 					new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
 					new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
@@ -556,9 +556,12 @@ public class AppLayoutController {
 
 				theMatch.setHome(new SimpleBooleanProperty(record.get("H/A").equals("H")));
 
-				int iLPZDiff = Integer.parseInt(record.get("LPZ-Diff"));
-				int iLPZ = Integer.parseInt(record.get("Live-PZ"));
-				int iLPZOther = Integer.parseInt(record.get("Live-PZ-O"));
+				String sValue = record.get("LPZ-Diff");
+				int iLPZDiff = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+				sValue = record.get("Live-PZ");
+				int iLPZ = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+				sValue = record.get("Live-PZ-O");
+				int iLPZOther = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
 
 				theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
 				theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
@@ -652,9 +655,12 @@ public class AppLayoutController {
 
 					theMatch.setHome(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().equals("H")));
 
-					int iLPZDiff = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText());
-					int iLPZ = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText());
-					int iLPZOther = Integer.parseInt(theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText());
+					String sValue = theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText();
+					int iLPZDiff = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+					sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText();
+					int iLPZ = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+					sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText();
+					int iLPZOther = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
 
 					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
 					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
