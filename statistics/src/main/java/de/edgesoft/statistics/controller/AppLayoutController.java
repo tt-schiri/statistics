@@ -62,6 +62,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -404,6 +405,7 @@ public class AppLayoutController {
 	private void handleCreateStatistics() {
 
 		propBusy.setValue(true);
+		primaryStage.getScene().setCursor(Cursor.WAIT);
 
 		txtLog.clear();
 
@@ -607,6 +609,7 @@ public class AppLayoutController {
 				);
 
 		propBusy.setValue(false);
+		primaryStage.getScene().setCursor(Cursor.DEFAULT);
 
 	}
 
