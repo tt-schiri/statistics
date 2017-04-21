@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.knowm.xchart.BitmapEncoder;
-import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategorySeries;
 import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieSeries;
+import org.knowm.xchart.VectorGraphicsEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
@@ -40,6 +40,7 @@ import org.odftoolkit.simple.table.Table;
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
 import de.edgesoft.edgeutils.xchart.Colorschemes;
+import de.edgesoft.edgeutils.xchart.EncoderFormats;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
@@ -54,6 +55,7 @@ import de.edgesoft.statistics.utils.PrefKey;
 import de.edgesoft.statistics.utils.Prefs;
 import de.edgesoft.statistics.utils.Resources;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -65,8 +67,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -176,6 +180,80 @@ public class AppLayoutController {
 	private TextField txtOutpath;
 
 	/**
+	 * Radio button group file format.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private ToggleGroup grpFileFormat;
+
+	/**
+	 * Radio button file format png.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radPNG;
+
+	/**
+	 * Radio button file format jpg.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radJPG;
+
+	/**
+	 * Radio button file format gif.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radGIF;
+
+	/**
+	 * Radio button file format bmp.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radBMP;
+
+	/**
+	 * Radio button file format svg.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radSVG;
+
+	/**
+	 * Radio button file format pdf.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radPDF;
+
+	/**
+	 * Radio button file format eps.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	@FXML
+	private RadioButton radEPS;
+
+
+
+	/**
 	 * Text area for log.
 	 *
 	 * @version 0.5.0
@@ -183,6 +261,7 @@ public class AppLayoutController {
 	 */
 	@FXML
 	private TextArea txtLog;
+
 
 	/**
 	 * Button create statistics.
@@ -201,6 +280,15 @@ public class AppLayoutController {
 	 * @since 0.5.0
 	 */
 	private Stage primaryStage = null;
+
+
+	/**
+	 * Busy property.
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private BooleanProperty propBusy = new SimpleBooleanProperty(false);
 
 
 	/**
@@ -243,6 +331,7 @@ public class AppLayoutController {
 		// load last values
 		txtData.setText(Prefs.get(PrefKey.FILE));
 		txtOutpath.setText(Prefs.get(PrefKey.OUTPATH));
+		grpFileFormat.selectToggle(grpFileFormat.getToggles().stream().filter(tog -> ((RadioButton) tog).getId().equals(Prefs.get(PrefKey.FILE_FORMAT))).findFirst().orElse(radPNG));
 
 		// set handler for close requests (x-button of window)
 		primaryStage.setOnCloseRequest(event -> {
@@ -250,6 +339,13 @@ public class AppLayoutController {
 			handleProgramExit();
 		});
 
+		// button enabling
+		btnCreateStatistics.disableProperty().bind(
+				txtData.textProperty().isEmpty()
+				.or(txtOutpath.textProperty().isEmpty())
+				.or(grpFileFormat.selectedToggleProperty().isNull())
+				.or(propBusy)
+				);
 
 		// testing
 //		handleCreateStatistics();
@@ -268,6 +364,7 @@ public class AppLayoutController {
 
 		Prefs.put(PrefKey.FILE, txtData.getText());
 		Prefs.put(PrefKey.OUTPATH, txtOutpath.getText());
+		Prefs.put(PrefKey.FILE_FORMAT, ((RadioButton) grpFileFormat.getSelectedToggle()).getId());
 
 		Platform.exit();
 	}
@@ -305,6 +402,8 @@ public class AppLayoutController {
 	 */
 	@FXML
 	private void handleCreateStatistics() {
+
+		propBusy.setValue(true);
 
 		txtLog.clear();
 
@@ -506,6 +605,8 @@ public class AppLayoutController {
 				Optional.empty(),
 				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
 				);
+
+		propBusy.setValue(false);
 
 	}
 
@@ -818,9 +919,19 @@ public class AppLayoutController {
 
 		try {
 
-			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s.png", theSeason.getTitle().getValue(), theFilename)).normalize();
+			String sFileFormat = ((RadioButton) grpFileFormat.getSelectedToggle()).getId().substring("rad".length()).toLowerCase();
 
-		    BitmapEncoder.saveBitmap(theChart, pathOut.toString(), BitmapFormat.PNG);
+			// adding the file extension is not needed, the save methods add them themselves
+//			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s.%s", theSeason.getTitle().getValue(), theFilename, sFileFormat)).normalize();
+			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s", theSeason.getTitle().getValue(), theFilename)).normalize();
+
+			if (EncoderFormats.BitmapFormats().containsKey(sFileFormat)) {
+			    BitmapEncoder.saveBitmap(theChart, pathOut.toString(), EncoderFormats.BitmapFormats().get(sFileFormat));
+			} else if (EncoderFormats.VectorFormats().containsKey(sFileFormat)) {
+				VectorGraphicsEncoder.saveVectorGraphic(theChart, pathOut.toString(), EncoderFormats.VectorFormats().get(sFileFormat));
+			} else {
+				throw new IOException(String.format("Dateiformat '%s' unbekannt.", sFileFormat));
+			}
 
 			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), pathOut.toString()));
 

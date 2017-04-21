@@ -2,42 +2,46 @@
 #
 ## Legal stuff
 #
-# Copyright 2016-2016 Ekkart Kleinod <ekleinod@edgesoft.de>
+# Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
 #
-# This file is part of "Das Gebu-Programm".
+# The program is distributed under the terms of the GNU General Public License.
 #
-# "Das Gebu-Programm" is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
+# See COPYING for details.
+#
+# This file is part of TT-Schiri: Statistics.
+#
+# TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# "Das Gebu-Programm" is distributed in the hope that it will be useful,
+# TT-Schiri: Statistics is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public License
-# along with "Das Gebu-Programm".  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 #
 # @author Ekkart Kleinod
-# @version 6.0.0
-# @since 6.0.0
+# @version 0.5.0
+# @since 0.5.0
 #
 # use encoding: ISO-8859-15
 
-Name Gebu
+Name TT-Statistics
 
 RequestExecutionLevel user
 
 # General Symbol Definitions
-!define REGKEY "Software\Gebu"
+!define REGKEY "Software\TT-Statistics"
 !define VERSION 6.0.0
 !define LONG_VERSION "${VERSION} beta 3"
 !define COMPANY "Ekkart Kleinod (edge-soft)"
 !define URL http://www.edgesoft.de/
-!define LONGNAME "Das Gebu-Programm"
-!define DIRNAME "gebu"
-!define INSTALLNAME "..\..\..\..\gebu_install.exe"
+!define LONGNAME "TT-Statistics"
+!define DIRNAME "tt-statistics"
+!define INSTALLNAME "..\..\..\..\${DIRNAME}_install.exe"
 
 # MUI Symbol Definitions
 !define MUI_ICON "..\resources\images\installer_icon.ico"
@@ -110,27 +114,21 @@ Section "${LONGNAME}" SEC_JAR
 	SectionIn RO # required
 	SetOverwrite on
 	SetOutPath $INSTDIR
-	File "..\..\..\..\gebu.jar"
-	File "/oname=gebu.ico" "..\resources\images\installer_icon.ico"
+	File "..\..\..\..\${DIRNAME}.jar"
+	File "/oname=${DIRNAME}.ico" "..\resources\images\installer_icon.ico"
 	WriteRegStr HKLM "${REGKEY}\Components" jar 1
 SectionEnd
 
 Section "Startmenü-Eintrag" SEC_SM
 	SetOverwrite on
 	CreateDirectory "$SMPROGRAMS\${LONGNAME}"
-	CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME}.lnk" "$INSTDIR\gebu.jar" "" "$INSTDIR\gebu.ico"
-SectionEnd
-
-Section "Autostart-Eintrag" SEC_AS
-	SetOverwrite on
-	CreateShortCut "$SMSTARTUP\${LONGNAME}.lnk" "$INSTDIR\gebu.jar" "" "$INSTDIR\gebu.ico"
+	CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME}.lnk" "javaw -jar $INSTDIR\gebu.jar" "" "$INSTDIR\gebu.ico"
 SectionEnd
 
 # Component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_JAR} "Die Programmdateien des Gebu-Programms."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_SM} "Der Eintrag im Startmenü sorgt dafür, dass Sie das Gebu-Programm bequem von Hand aus dem Startmenü starten können."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_AS} "Dieser Eintrag sorgt dafür, dass das Gebu-Programm bei jedem Rechnerstart automatisch ausgeführt wird."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_JAR} "Die Programmdateien von ${LONGNAME}."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SEC_SM} "Der Eintrag im Startmenü sorgt dafür, dass Sie ${LONGNAME} bequem von Hand aus dem Startmenü starten können."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 # Installer functions

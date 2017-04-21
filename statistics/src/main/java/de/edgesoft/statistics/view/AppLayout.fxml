@@ -6,17 +6,20 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="appPane" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.edgesoft.statistics.controller.AppLayoutController">
+<BorderPane fx:id="appPane" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.edgesoft.statistics.controller.AppLayoutController">
    <top>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -54,17 +57,55 @@
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="676.0" minWidth="10.0" prefWidth="465.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" valignment="TOP" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label text="Datendatei" />
-                  <TextField fx:id="txtData" GridPane.columnIndex="1" />
+                  <TextField fx:id="txtData" GridPane.columnIndex="1">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
                   <Label text="Ausgabepfad" GridPane.rowIndex="1" />
-                  <TextField fx:id="txtOutpath" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="txtOutpath" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <GridPane.margin>
+                        <Insets bottom="5.0" top="5.0" />
+                     </GridPane.margin></TextField>
+                  <Label text="Dateiformat" GridPane.rowIndex="2">
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </Label>
+                  <HBox spacing="50.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <children>
+                        <VBox spacing="5.0">
+                           <children>
+                              <RadioButton fx:id="radPNG" mnemonicParsing="false" selected="true" text="png">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="grpFileFormat" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="radJPG" mnemonicParsing="false" text="jpg" toggleGroup="$grpFileFormat" />
+                              <RadioButton fx:id="radGIF" mnemonicParsing="false" text="gif" toggleGroup="$grpFileFormat" />
+                              <RadioButton fx:id="radBMP" mnemonicParsing="false" text="bmp" toggleGroup="$grpFileFormat" />
+                           </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                           <children>
+                              <RadioButton fx:id="radSVG" mnemonicParsing="false" text="svg" toggleGroup="$grpFileFormat" />
+                              <RadioButton fx:id="radPDF" mnemonicParsing="false" text="pdf" toggleGroup="$grpFileFormat" />
+                              <RadioButton fx:id="radEPS" mnemonicParsing="false" text="eps" toggleGroup="$grpFileFormat" />
+                           </children>
+                        </VBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
                </children>
             </GridPane>
-            <TextArea fx:id="txtLog" editable="false" layoutX="182.0" layoutY="18.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="80.0" />
+            <TextArea fx:id="txtLog" editable="false" layoutX="182.0" layoutY="18.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="170.0" />
          </children>
       </AnchorPane>
    </center>

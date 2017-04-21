@@ -37,6 +37,8 @@ public enum PrefKey {
 
 	FILE,
 
+	FILE_FORMAT,
+
 	OUTPATH,
 	;
 

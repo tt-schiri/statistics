@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 import de.edgesoft.statistics.Statistics;
 
 /**
- * Preferences of the referee manager.
+ * Preferences of TT-Schiri: Statistics.
  *
  * ## Legal stuff
  *
@@ -31,16 +31,16 @@ import de.edgesoft.statistics.Statistics;
  * along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Ekkart Kleinod
- * @version 0.1.0
- * @since 0.1.0
+ * @version 0.5.0
+ * @since 0.5.0
  */
 public class Prefs {
 
 	/**
 	 * Preferences object.
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	private static Preferences preferences = null;
 
@@ -49,8 +49,8 @@ public class Prefs {
 	 *
 	 * @return preferences
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	private static Preferences getPreferences() {
 		if (preferences == null) {
@@ -65,8 +65,8 @@ public class Prefs {
 	 * @param theKey preference key
 	 * @return preference value
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static String get(final PrefKey theKey) {
 
@@ -83,8 +83,8 @@ public class Prefs {
 	 * @param theKey preference key
 	 * @param theValue value
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static void put(final PrefKey theKey, final String theValue) {
 		put(theKey.value(), theValue);
@@ -96,8 +96,8 @@ public class Prefs {
 	 * @param theKey text key
 	 * @param theValue value
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static void put(final String theKey, final String theValue) {
 		getPreferences().put(theKey, theValue);
