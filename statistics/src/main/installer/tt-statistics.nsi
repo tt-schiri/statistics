@@ -40,15 +40,16 @@ RequestExecutionLevel user
 !define COMPANY "Ekkart Kleinod (edge-soft)"
 !define URL http://www.edgesoft.de/
 !define LONGNAME "TT-Statistics"
-!define DIRNAME "tt-statistics"
-!define INSTALLNAME "..\..\..\..\${DIRNAME}_install.exe"
+!define FILENAME "tt-statistics"
+!define DIRNAME "${FILENAME}"
+!define INSTALLNAME "..\..\..\..\${FILENAME}_install.exe"
 
 # MUI Symbol Definitions
 !define MUI_ICON "..\resources\images\installer_icon.ico"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM" # store in registry under HKEY_LOCAL_MACHINE
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
-!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME ${DIRNAME}
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME ${FILENAME}
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER ${DIRNAME}
 
 # Included files
@@ -114,15 +115,15 @@ Section "${LONGNAME}" SEC_JAR
 	SectionIn RO # required
 	SetOverwrite on
 	SetOutPath $INSTDIR
-	File "..\..\..\..\${DIRNAME}.jar"
-	File "/oname=${DIRNAME}.ico" "..\resources\images\installer_icon.ico"
+	File "..\..\..\..\${FILENAME}.jar"
+	File "/oname=${FILENAME}.ico" "..\resources\images\installer_icon.ico"
 	WriteRegStr HKLM "${REGKEY}\Components" jar 1
 SectionEnd
 
 Section "Startmenü-Eintrag" SEC_SM
 	SetOverwrite on
 	CreateDirectory "$SMPROGRAMS\${LONGNAME}"
-	CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME}.lnk" "javaw -jar $INSTDIR\gebu.jar" "" "$INSTDIR\gebu.ico"
+	CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME}.lnk" "javaw.exe" "-jar $\"$INSTDIR\${FILENAME}.jar$\"" "$INSTDIR\${FILENAME}.ico"
 SectionEnd
 
 # Component descriptions
@@ -142,7 +143,7 @@ Function .onInit
 FunctionEnd
 
 Function CopyExisting
-	IfFileExists "$INSTDIR\gebu.jar" 0 +4
+	IfFileExists "$INSTDIR\${FILENAME}.jar" 0 +4
 		MessageBox MB_OKCANCEL|MB_ICONQUESTION "${LONGNAME} ist bereits im Installationsverzeichnis vorhanden. Soll es überschrieben werden?$\r$\n$\r$\nBei $\"Abbrechen$\" kann ein neues Verzeichnis ausgesucht werden." IDOK continue
 		Abort
 	continue:
