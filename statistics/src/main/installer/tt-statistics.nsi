@@ -118,12 +118,25 @@ Section "${LONGNAME}" SEC_JAR
 	File "..\..\..\..\${FILENAME}.jar"
 	File "/oname=${FILENAME}.ico" "..\resources\images\installer_icon.ico"
 	WriteRegStr HKLM "${REGKEY}\Components" jar 1
+
+	# uninstaller
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}" "DisplayName" "${LONGNAME}"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}" "UninstallString" "$INSTDIR\uninstall.exe"
+	writeUninstaller "$INSTDIR\uninstall.exe"
 SectionEnd
 
 Section "Startmenü-Eintrag" SEC_SM
 	SetOverwrite on
 	CreateDirectory "$SMPROGRAMS\${LONGNAME}"
 	CreateShortCut "$SMPROGRAMS\${LONGNAME}\${LONGNAME}.lnk" "javaw.exe" "-jar $\"$INSTDIR\${FILENAME}.jar$\"" "$INSTDIR\${FILENAME}.ico"
+SectionEnd
+
+Section "Uninstall" SEC_UN
+#	SetShellVarContext all
+	RMDir /r "$SMPROGRAMS\${LONGNAME}"
+	RMDir /r "$INSTDIR"
+	Delete $INSTDIR\uninstall.exe
+#	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}"
 SectionEnd
 
 # Component descriptions
