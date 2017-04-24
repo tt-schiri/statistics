@@ -55,8 +55,8 @@ Kommandozeile:
 Die Daten für die Statistik müssen per LibreOffice-Calc-Datei (ods) oder als csv-Datei bereitgestellt werden.
 Das Datenformat ist aus den Beispieldateien im Repository zu entnehmen:
 
-- [Season-Ekkart.ods](https://github.com/tt-schiri/statistics/blob/feature/work/data/Season-Ekkart.ods)
-- [2016-2017.csv](https://github.com/tt-schiri/statistics/blob/feature/work/data/2016-2017.csv)
+- [Season-Ekkart.ods](https://github.com/tt-schiri/statistics/blob/master/data/Einzel.ods)
+- [2016-2017.csv](https://github.com/tt-schiri/statistics/blob/master/data/Einzel_2016-2017.csv)
 
 Am besten ist es, die Dateien zu kopieren und anzupassen.
 Das Statistikprogramm wertet genau eine csv-Datei aus oder das am weitesten rechts erscheinende Tabellenblatt der ods-Datei.
@@ -80,9 +80,11 @@ Daher ist es rechtlich problematisch, die Daten per Skript auszulesen, aber kein
 <!-- \cleardoublepage -->
 # Bedienung
 
-Nach dem Start erscheint die Oberfläche des Programms:
+Nach dem Start erscheint die Oberfläche des Programms (siehe [](#gui)).
 
-![Bedienoberfläche](images/gui.png)
+![Bedienoberfläche.][gui]
+
+[gui]: images/gui.png width=".6\textwidth"
 
 Datendatei
 : hier gebt Ihr die Datei ein, aus der die Daten gelesen werden sollen
