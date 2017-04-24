@@ -35,8 +35,8 @@ RequestExecutionLevel user
 
 # General Symbol Definitions
 !define REGKEY "Software\TT-Statistics"
-!define VERSION 6.0.0
-!define LONG_VERSION "${VERSION} beta 3"
+!define VERSION 0.5.0
+!define LONG_VERSION "${VERSION}"
 !define COMPANY "Ekkart Kleinod (edge-soft)"
 !define URL http://www.edgesoft.de/
 !define LONGNAME "TT-Statistics"
