@@ -101,10 +101,13 @@ Statistikdateien erzeugen
 Ein kleiner Überblick über die geleistete Arbeit erscheint in der Mitte des Programms, falls Fehler auftreten, werden auch diese dort ausgegeben.
 
 Beim Beenden des Programms merkt sich das Programm die eingegebenen Daten und lädt sie beim nächsten Start neu.
-Diese Daten findet Ihr:
+Diese Daten findet Ihr hier (falls Ihr das braucht):
 
-- Windows: Registry...
-- Linux: `~/.java/.userPrefs/de/edgesoft/statistics/prefs.xml`
+Windows-Registry
+:	`HKEY_CURRENT_USER\Software\JavaSoft\Prefs\de\edgesoft\statistics`
+
+Linux
+: `~/.java/.userPrefs/de/edgesoft/statistics/prefs.xml`
 
 ## Dateigenerierung
 
@@ -126,7 +129,11 @@ Endung
 
 ## Verfügbare Statistiken
 
-###
+Falls Euch Statistiken fehlen: als [Issue](https://github.com/tt-schiri/statistics/issues) melden oder mir eine E-Mail schreiben oder selbst programmieren und als Pull-Request einreichen.
+
+### win-loss
+
+Gewonnene und verlorene Spiele Gesamt.
 
 0-1-win-loss
 0-2-win-loss
@@ -152,4 +159,4 @@ set-2-win-loss
 set-3-win-loss
 set-4-win-loss
 set-5-win-loss
-win-loss
+
