@@ -432,6 +432,7 @@ public class AppLayoutController {
 
 		Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
 		List<Match> lstMatches = theSeason.getMatch();
+		boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
 
 		// pie charts
 
@@ -500,21 +501,25 @@ public class AppLayoutController {
 
 		}
 
-		// strong opponent - wins/losses
-		writePieChart(pathOut, theSeason, "opp-strong-win-loss",
-				"Starker Gegner: +/-",
-				Optional.empty(),
-				new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-				new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-				);
+		if (hasLPZ) {
 
-		// weak opponent - wins/losses
-		writePieChart(pathOut, theSeason, "opp-weak-win-loss",
-				"Schwacher Gegner: +/-",
-				Optional.empty(),
-				new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-				new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-				);
+			// strong opponent - wins/losses
+			writePieChart(pathOut, theSeason, "opp-strong-win-loss",
+					"Starker Gegner: +/-",
+					Optional.empty(),
+					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+					);
+
+			// weak opponent - wins/losses
+			writePieChart(pathOut, theSeason, "opp-weak-win-loss",
+					"Schwacher Gegner: +/-",
+					Optional.empty(),
+					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+					);
+
+		}
 
 		// after certain set result
 		Map<String, List<Match>> mapResultMatches = new HashMap<>();
@@ -550,63 +555,67 @@ public class AppLayoutController {
 
 
 
-		// lpz chart
-	    List<Date> lstDates = new ArrayList<>();
-	    List<Integer> lstLPZ = new ArrayList<>();
-	    List<Integer> lstLPZ0 = new ArrayList<>();
-	    Match lastMatch = null;
+		if (hasLPZ) {
 
-	    if (!lstMatches.isEmpty()) {
+			// lpz chart
+		    List<Date> lstDates = new ArrayList<>();
+		    List<Integer> lstLPZ = new ArrayList<>();
+		    List<Integer> lstLPZ0 = new ArrayList<>();
+		    Match lastMatch = null;
 
-	    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
-    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
-	    	lstLPZ0.add(0);
+		    if (!lstMatches.isEmpty()) {
 
-	    	for (Match theMatch : lstMatches) {
+		    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
+	    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
+		    	lstLPZ0.add(0);
 
-	    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
-	    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
-	    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
+		    	for (Match theMatch : lstMatches) {
 
-	    		lastMatch = theMatch;
+		    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
+		    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
+		    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
 
-	    	}
+		    		lastMatch = theMatch;
 
-	    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
-	    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
-    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
+		    	}
 
-	    }
+		    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
+		    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
+	    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
+
+		    }
 
 
-    	List<XYSeries> lstSeries = new ArrayList<>();
-	    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
+	    	List<XYSeries> lstSeries = new ArrayList<>();
+		    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeXYChart(pathOut, theSeason, "lpz",
-				"Live-PZ",
-				Optional.empty(),
-				lstSeries.toArray(new XYSeries[lstSeries.size()])
-				);
+			writeXYChart(pathOut, theSeason, "lpz",
+					"Live-PZ",
+					Optional.empty(),
+					lstSeries.toArray(new XYSeries[lstSeries.size()])
+					);
 
-    	lstSeries = new ArrayList<>();
-	    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
+	    	lstSeries = new ArrayList<>();
+		    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
 
-		writeXYChart(pathOut, theSeason, "lpz-change",
-				"Live-PZ-Änderung",
-				Optional.empty(),
-				lstSeries.toArray(new XYSeries[lstSeries.size()])
-				);
+			writeXYChart(pathOut, theSeason, "lpz-change",
+					"Live-PZ-Änderung",
+					Optional.empty(),
+					lstSeries.toArray(new XYSeries[lstSeries.size()])
+					);
 
-		// lpz chart
-		List<CategorySeries> lstSeries2 = new ArrayList<>();
+			// lpz chart
+			List<CategorySeries> lstSeries2 = new ArrayList<>();
 
-	    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
+		    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
 
-		writeCategoryChart(pathOut, theSeason, "lpz2",
-				"Live-PZ 2",
-				Optional.empty(),
-				lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
-				);
+			writeCategoryChart(pathOut, theSeason, "lpz2",
+					"Live-PZ 2",
+					Optional.empty(),
+					lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
+					);
+
+		}
 
 		propBusy.setValue(false);
 		primaryStage.getScene().setCursor(Cursor.DEFAULT);
@@ -759,17 +768,21 @@ public class AppLayoutController {
 
 					theMatch.setHome(new SimpleBooleanProperty(theRow.getCellByIndex(mapHeader.get("H/A")).getDisplayText().equals("H")));
 
-					String sValue = theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText();
-					int iLPZDiff = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
-					sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText();
-					int iLPZ = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
-					sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText();
-					int iLPZOther = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+					if (mapHeader.containsKey("LPZ-Diff")) {
 
-					theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
-					theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
-					theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
-					theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ + iLPZDiff));
+						String sValue = theRow.getCellByIndex(mapHeader.get("LPZ-Diff")).getDisplayText();
+						int iLPZDiff = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+						sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ")).getDisplayText();
+						int iLPZ = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+						sValue = theRow.getCellByIndex(mapHeader.get("Live-PZ-O")).getDisplayText();
+						int iLPZOther = Integer.parseInt(sValue.isEmpty() ? "0" : sValue);
+
+						theMatch.setLivePzBefore(new SimpleIntegerProperty(iLPZ));
+						theMatch.setLivePzOther(new SimpleIntegerProperty(iLPZOther));
+						theMatch.setLivePzDiff(new SimpleIntegerProperty(iLPZDiff));
+						theMatch.setLivePzAfter(new SimpleIntegerProperty(iLPZ + iLPZDiff));
+
+					}
 
 					for (int i = 1; i <= 5; i++) {
 						if (!theRow.getCellByIndex(mapHeader.get(String.format("S%dP", i))).getDisplayText().isEmpty()) {
