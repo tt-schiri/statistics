@@ -122,41 +122,52 @@ Präfix
 : bei csv-Dateien der Dateiname ohne ".csv"
 
 Statistik
-: Kürzel der Statistik
+: Kürzel der Statistik siehe [](#sec:stats)
 
 Endung
 : je nach gewähltem Dateiformat
 
-## Verfügbare Statistiken
+## Verfügbare Statistiken [sec:stats]
 
 Falls Euch Statistiken fehlen: als [Issue](https://github.com/tt-schiri/statistics/issues) melden oder mir eine E-Mail schreiben oder selbst programmieren und als Pull-Request einreichen.
 
-### win-loss
+### Entwicklungsdiagramme
+
+#### lpz/lpz2
+
+LivePZ-Entwicklung absolut, zwei unterschiedliche Darstellungen.
+
+#### lpz-change
+
+LivePZ-Entwicklung relativ seit Beginn der Aufzeichnung.
+
+
+### Ringdiagramme
+
+#### win-loss
 
 Gewonnene und verlorene Spiele Gesamt.
 
-0-1-win-loss
-0-2-win-loss
-1-0-win-loss
-1-1-win-loss
-1-2-win-loss
-2-0-win-loss
-2-1-win-loss
-2-2-win-loss
-3-sets-win-loss
-4-sets-win-loss
-5-sets-win-loss
-home-off
-home-win-loss
-lpz
-lpz2
-lpz-change
-off-win-loss
-opp-strong-win-loss
-opp-weak-win-loss
-set-1-win-loss
-set-2-win-loss
-set-3-win-loss
-set-4-win-loss
-set-5-win-loss
+#### home-off
 
+Anzahl Heim- und Auswärtsspiele.
+
+#### [home|off]-win-loss
+
+Anzahl gewonnene/verlorene Heim- bzw. Auswärtsspiele.
+
+#### 0-1-win-loss ...
+
+Gewonnen/verloren nach dem Stand "0:1" etc.
+
+#### 3-sets-win-loss ...
+
+Gewonnene und verlorene Spiele in 3 Sätzen etc.
+
+#### set-1-win-loss ...
+
+Gewonnene und verlorene 1. Sätze etc.
+
+#### opp-[strong|weak]-win-loss
+
+Gewonnene und verlorene Spiele gegen starke (strong) bzw. schwache (weak) Gegner.
