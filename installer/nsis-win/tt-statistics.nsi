@@ -1,4 +1,4 @@
-# gebu install script.
+# tt-statistics install script.
 #
 ## Legal stuff
 #
@@ -45,10 +45,11 @@ RequestExecutionLevel user
 !define LONGNAME "TT-Statistics"
 !define FILENAME "tt-statistics"
 !define DIRNAME "${FILENAME}"
-!define INSTALLNAME "..\..\..\..\${FILENAME}_install.exe"
+!define INSTALLNAME "..\..\${FILENAME}_install.exe"
+!define RESOURCEDIR "..\..\statistics\src\main\resources"
 
 # MUI Symbol Definitions
-!define MUI_ICON "..\resources\images\installer_icon.ico"
+!define MUI_ICON "${RESOURCEDIR}\images\installer_icon.ico"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM" # store in registry under HKEY_LOCAL_MACHINE
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
@@ -71,8 +72,8 @@ Sind Sie sicher, dass Sie die Installation abbrechen wollen?"
 
 # Images
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "..\resources\images\installer_header.bmp"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "..\resources\images\installer_welcomefinish.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${RESOURCEDIR}\images\installer_header.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${RESOURCEDIR}\images\installer_welcomefinish.bmp"
 
 # Welcome
 !define MUI_WELCOMEPAGE_TITLE "Installation $\"${LONGNAME}$\" ${LONG_VERSION}"
@@ -118,8 +119,8 @@ Section "${LONGNAME}" SEC_JAR
 	SectionIn RO # required
 	SetOverwrite on
 	SetOutPath $INSTDIR
-	File "..\..\..\..\${FILENAME}.jar"
-	File "/oname=${FILENAME}.ico" "..\resources\images\installer_icon.ico"
+	File "..\..\${FILENAME}.jar"
+	File "/oname=${FILENAME}.ico" "${RESOURCEDIR}\images\installer_icon.ico"
 	WriteRegStr HKLM "${REGKEY}\Components" jar 1
 
 	# uninstaller
@@ -167,7 +168,7 @@ SectionEnd
 Function .onInit
 	InitPluginsDir
 	Push $R1
-	File /oname=$PLUGINSDIR\spltmp.bmp "..\resources\images\installer_splash.bmp"
+	File /oname=$PLUGINSDIR\spltmp.bmp "${RESOURCEDIR}\images\installer_splash.bmp"
 	advsplash::show 1500 600 400 -1 $PLUGINSDIR\spltmp
 	Pop $R1
 	Pop $R1
