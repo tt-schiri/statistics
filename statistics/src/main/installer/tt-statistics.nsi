@@ -35,7 +35,10 @@ RequestExecutionLevel user
 
 # General Symbol Definitions
 !define REGKEY "Software\TT-Statistics"
-!define VERSION 0.5.0
+!define VERSIONMAJOR 0
+!define VERSIONMINOR 5
+!define VERSIONBUILD 0
+!define VERSION ${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}
 !define LONG_VERSION "${VERSION}"
 !define COMPANY "Ekkart Kleinod (edge-soft)"
 !define URL http://www.edgesoft.de/
@@ -102,7 +105,7 @@ ShowInstDetails show
 VIProductVersion ${VERSION}.0
 VIAddVersionKey /LANG=${LANG_GERMAN} ProductName "${LONGNAME}"
 VIAddVersionKey /LANG=${LANG_GERMAN} ProductVersion "${VERSION}"
-VIAddVersionKey /LANG=${LANG_GERMAN} CompanyName "${COMPANY}"
+VIAddVersionKey /LANG=${LANG_GERMAN} COMPANY "${COMPANY}"
 VIAddVersionKey /LANG=${LANG_GERMAN} CompanyWebsite "${URL}"
 VIAddVersionKey /LANG=${LANG_GERMAN} FileVersion "${VERSION}"
 VIAddVersionKey /LANG=${LANG_GERMAN} FileDescription ""
@@ -122,7 +125,21 @@ Section "${LONGNAME}" SEC_JAR
 	# uninstaller
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}" "DisplayName" "${LONGNAME}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}" "UninstallString" "$INSTDIR\uninstall.exe"
-	writeUninstaller "$INSTDIR\uninstall.exe"
+	WriteUninstaller "$INSTDIR\uninstall.exe"
+
+	# registry for add/remove program
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "DisplayName" "${COMPANY} - ${LONGNAME}"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "InstallLocation" "$\"$INSTDIR$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "DisplayIcon" "$\"$INSTDIR\${FILENAME}.ico$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "Publisher" "$\"${COMPANY}$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "DisplayVersion" "$\"${VERSION}$\""
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "VersionMajor" ${VERSIONMAJOR}
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "VersionMinor" ${VERSIONMINOR}
+	# There is no option for modifying or repairing the install
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "NoModify" 1
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}" "NoRepair" 1
 SectionEnd
 
 Section "Startmenü-Eintrag" SEC_SM
@@ -136,7 +153,8 @@ Section "Uninstall" SEC_UN
 	RMDir /r "$SMPROGRAMS\${LONGNAME}"
 	RMDir /r "$INSTDIR"
 	Delete $INSTDIR\uninstall.exe
-#	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${LONGNAME}"
+	RMDir "$INSTDIR"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANY} ${LONGNAME}"
 SectionEnd
 
 # Component descriptions
@@ -161,5 +179,14 @@ Function CopyExisting
 		Abort
 	continue:
 FunctionEnd
+
+# UnInstaller function
+function un.onInit
+#	SetShellVarContext all
+
+	MessageBox MB_OKCANCEL "${LONGNAME} deinstallieren?" IDOK continue
+		Abort
+	continue:
+functionEnd
 
 # EOF
