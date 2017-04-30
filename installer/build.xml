@@ -50,6 +50,14 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
 	<target name="debinstall" description="Create debian installer (run as root).">
 
+		<fail message="You need to be root to create the debian installer, call 'sudo ant debinstall'.">
+		 <condition>
+			 <not>
+				 <equals arg1="root" arg2="${user.name}"/>
+			 </not>
+		 </condition>
+		</fail>
+
 		<!-- copy templates -->
 		<copy toDir="${dir.debiantmp}">
 			<fileset dir="${dir.debian}" />
@@ -83,18 +91,21 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 			value="${dirsize}"
 		/>
 
-		<!-- change ownder and group to root -->
-		<!--chown owner="root">
-			<fileset dir="${dir.debiantmp}" />
-			<dirset dir="${dir.debiantmp}" />
-		</chown>
+		<echo message="Ready, now call 'ant createdeb' (not as root)." />
 
-		<chgrp group="root">
-			<fileset dir="${dir.debiantmp}" />
-			<dirset dir="${dir.debiantmp}" />
-		</chgrp-->
+	</target>
 
+	<target name="createdeb" description="Create deb file.">
 
+		<!-- create deb file -->
+		<exec executable="dpkg">
+			<arg value="--build" />
+			<arg value="${dir.debiantmp}" />
+		</exec>
+
+		<move file="${dir.debiantmp}.deb" tofile="${dir.debian}-${version}.deb" />
+
+		<echo message="Ready, now call 'sudo ant clearTmp' (as root)." />
 
 	</target>
 
@@ -116,6 +127,10 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 		<delete>
 			<fileset dir="." includes="**/*.log" />
 		</delete>
+	</target>
+
+	<target name="clearTmp" description="Delete temporary files.">
+		<delete dir="${dir.debiantmp}" />
 	</target>
 
 </project>
