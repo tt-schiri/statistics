@@ -11,3 +11,4 @@ Description: Generates table-tennis statistics.
  The strength of a player is measured in LivePZ.
 Depends: openjdk-8-jre | openjdk-9-jre | oracle-java8-installer | oracle-java9-installer
 Homepage: https://github.com/tt-schiri/statistics
+Installed-Size: 10123
