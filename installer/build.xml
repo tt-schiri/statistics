@@ -4,6 +4,8 @@
 
 Create all statistics installer.
 
+Target "debinstall" has to be run as root in order to change owner and group accordingly.
+
 # Legal stuff
 
 Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
@@ -35,10 +37,10 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
 <project name="tt-statistics" default="help" basedir=".">
 
-	<property name="dir:debian" value="debian" />
-	<property name="dir:debiantmp" value="${dir:debian}-tmp" />
+	<!-- ant-contrib has to be installed -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
-	<property name="file:log" value="build.log" />
+	<property file="project.properties"/>
 
 	<target name="all" depends="clearLog" description="Create all installers.">
 
@@ -46,13 +48,53 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
 	</target>
 
-	<target name="debinstall" description="Create debian installer.">
+	<target name="debinstall" description="Create debian installer (run as root).">
 
-		<copy
-			toDir="${dir:debiantmp}"
-		>
-			<fileset dir="${dir:debian}" />
+		<!-- copy templates -->
+		<copy toDir="${dir.debiantmp}">
+			<fileset dir="${dir.debian}" />
 		</copy>
+
+		<!-- changelog -->
+		<gzip
+			src="../changelog"
+			destfile="${dir.debiantmp}/usr/share/doc/${ant.project.name}/changelog.gz"
+		/>
+
+		<!-- shell script -->
+		<chmod file="${dir.debiantmp}/bin/${ant.project.name}" perm="ugo+rx"/>
+
+		<!-- control file -->
+		<replace
+			file="${dir.debiantmp}/DEBIAN/control"
+			token="**version**"
+			value="${version}"
+		/>
+
+		<length property="dirsize">
+			<fileset dir="${dir.debiantmp}" />
+		</length>
+
+		<math result="dirsize" operand1="${dirsize}" operation="/" operand2="1024" datatype="int" />
+
+		<replace
+			file="${dir.debiantmp}/DEBIAN/control"
+			token="**size**"
+			value="${dirsize}"
+		/>
+
+		<!-- change ownder and group to root -->
+		<!--chown owner="root">
+			<fileset dir="${dir.debiantmp}" />
+			<dirset dir="${dir.debiantmp}" />
+		</chown>
+
+		<chgrp group="root">
+			<fileset dir="${dir.debiantmp}" />
+			<dirset dir="${dir.debiantmp}" />
+		</chgrp-->
+
+
 
 	</target>
 
