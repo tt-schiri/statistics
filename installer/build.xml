@@ -42,20 +42,16 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 
 	<property file="project.properties"/>
 
-	<target name="all" depends="clearLog" description="Create all installers.">
+	<import file="${dir.win}/build.xml" />
 
-		<antcall target="debinstall" />
-
-	</target>
-
-	<target name="debinstall" description="Create debian installer (run as root).">
+	<target name="debinstall" depends="clearLog" description="Create debian installer (run as root).">
 
 		<fail message="You need to be root to create the debian installer, call 'sudo ant debinstall'.">
-		 <condition>
-			 <not>
-				 <equals arg1="root" arg2="${user.name}"/>
-			 </not>
-		 </condition>
+			<condition>
+				<not>
+					<equals arg1="root" arg2="${user.name}"/>
+				</not>
+			</condition>
 		</fail>
 
 		<!-- copy templates -->
@@ -98,14 +94,64 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 	<target name="createdeb" description="Create deb file.">
 
 		<!-- create deb file -->
-		<exec executable="dpkg">
+		<exec executable="dpkg" output="${file.log}" append="true" >
 			<arg value="--build" />
 			<arg value="${dir.debiantmp}" />
 		</exec>
 
 		<move file="${dir.debiantmp}.deb" tofile="../files/${ant.project.name}-${version}.deb" />
 
+		<!-- link created installer -->
+		<symlink
+			link="../files/${ant.project.name}.deb"
+			resource="${ant.project.name}-${version}.deb"
+			overwrite="true"
+		/>
+
 		<echo message="Ready, now call 'sudo ant clearTmp' (as root)." />
+
+	</target>
+
+	<target name="clearTmp" description="Delete temporary files.">
+		<delete dir="${dir.debiantmp}" />
+	</target>
+
+	<target name="wininstall" depends="clearLog" description="Create windows installer.">
+
+		<!-- copy templates -->
+		<copy toDir="${dir.wintmp}">
+			<fileset dir="${dir.win}" />
+		</copy>
+
+		<!-- nsi file -->
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.major**"
+			value="${version.major}"
+		/>
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.minor**"
+			value="${version.minor}"
+		/>
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.build**"
+			value="${version.build}"
+		/>
+
+		<!-- call nsis -->
+		<antcall target="installer" />
+
+		<!-- link created installer -->
+		<symlink
+			link="../files/${ant.project.name}.exe"
+			resource="${ant.project.name}-${version}.exe"
+			overwrite="true"
+		/>
+
+		<!-- remove temp dir -->
+		<delete dir="${dir.wintmp}" />
 
 	</target>
 
@@ -123,14 +169,10 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 	</target>
 
 	<target name="clearLog" description="Delete log file.">
-		<echo message="" file="${file:log}" />
+		<echo message="" file="${file.log}" />
 		<delete>
 			<fileset dir="." includes="**/*.log" />
 		</delete>
-	</target>
-
-	<target name="clearTmp" description="Delete temporary files.">
-		<delete dir="${dir.debiantmp}" />
 	</target>
 
 </project>

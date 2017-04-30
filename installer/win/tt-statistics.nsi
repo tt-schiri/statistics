@@ -35,9 +35,9 @@ RequestExecutionLevel user
 
 # General Symbol Definitions
 !define REGKEY "Software\TT-Statistics"
-!define VERSIONMAJOR 0
-!define VERSIONMINOR 5
-!define VERSIONBUILD 0
+!define VERSIONMAJOR **version.major**
+!define VERSIONMINOR **version.minor**
+!define VERSIONBUILD **version.build**
 !define VERSION ${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}
 !define LONG_VERSION "${VERSION}"
 !define COMPANY "Ekkart Kleinod (edge-soft)"
@@ -45,7 +45,7 @@ RequestExecutionLevel user
 !define LONGNAME "TT-Statistics"
 !define FILENAME "tt-statistics"
 !define DIRNAME "${FILENAME}"
-!define INSTALLNAME "..\..\${FILENAME}_install.exe"
+!define INSTALLNAME "..\..\files\${FILENAME}-${VERSION}.exe"
 !define RESOURCEDIR "..\..\statistics\src\main\resources"
 
 # MUI Symbol Definitions
@@ -119,7 +119,7 @@ Section "${LONGNAME}" SEC_JAR
 	SectionIn RO # required
 	SetOverwrite on
 	SetOutPath $INSTDIR
-	File "..\..\${FILENAME}.jar"
+	File "..\..\files\${FILENAME}.jar"
 	File "/oname=${FILENAME}.ico" "${RESOURCEDIR}\images\installer_icon.ico"
 	WriteRegStr HKLM "${REGKEY}\Components" jar 1
 
