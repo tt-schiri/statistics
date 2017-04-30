@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+Create all statistics installer.
+
+# Legal stuff
+
+Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
+
+The program is distributed under the terms of the GNU General Public License.
+
+See COPYING for details.
+
+This file is part of TT-Schiri: Statistics.
+
+TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TT-Schiri: Statistics is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
+
+@author Ekkart Kleinod
+@version 0.5.0
+@since 0.5.0
+
+-->
+
+<project name="tt-statistics" default="help" basedir=".">
+
+	<property name="dir:debian" value="debian" />
+	<property name="dir:debiantmp" value="${dir:debian}-tmp" />
+
+	<property name="file:log" value="build.log" />
+
+	<target name="all" depends="clearLog" description="Create all installers.">
+
+		<antcall target="debinstall" />
+
+	</target>
+
+	<target name="debinstall" description="Create debian installer.">
+
+		<copy
+			toDir="${dir:debiantmp}"
+		>
+			<fileset dir="${dir:debian}" />
+		</copy>
+
+	</target>
+
+	<target name="help" description="Shows help text.">
+		<echo>Create ${ant.project.name} installer</echo>
+		<echo />
+		<echo>You can use the following targets:</echo>
+
+		<!-- show all available targets -->
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-projecthelp" />
+			<arg value="-buildfile" />
+			<arg value="${ant.file}" />
+		</java>
+	</target>
+
+	<target name="clearLog" description="Delete log file.">
+		<echo message="" file="${file:log}" />
+		<delete>
+			<fileset dir="." includes="**/*.log" />
+		</delete>
+	</target>
+
+</project>
+
+<!-- EOF -->
