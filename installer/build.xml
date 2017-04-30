@@ -103,7 +103,7 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 			<arg value="${dir.debiantmp}" />
 		</exec>
 
-		<move file="${dir.debiantmp}.deb" tofile="${dir.debian}-${version}.deb" />
+		<move file="${dir.debiantmp}.deb" tofile="../files/${ant.project.name}-${version}.deb" />
 
 		<echo message="Ready, now call 'sudo ant clearTmp' (as root)." />
 
