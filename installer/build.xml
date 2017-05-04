@@ -144,15 +144,19 @@ along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
 		<antcall target="installer" />
 
 		<!-- link created installer -->
+		<antcall target="symlink" />
+
+		<!-- remove temp dir -->
+		<delete dir="${dir.wintmp}" />
+
+	</target>
+
+	<target name="symlink" if="isUnix">
 		<symlink
 			link="../files/${ant.project.name}.exe"
 			resource="${ant.project.name}-${version}.exe"
 			overwrite="true"
 		/>
-
-		<!-- remove temp dir -->
-		<delete dir="${dir.wintmp}" />
-
 	</target>
 
 	<target name="help" description="Shows help text.">
