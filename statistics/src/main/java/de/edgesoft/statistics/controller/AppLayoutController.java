@@ -60,6 +60,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -406,219 +407,234 @@ public class AppLayoutController {
 
 		propBusy.setValue(true);
 		primaryStage.getScene().setCursor(Cursor.WAIT);
-
 		txtLog.clear();
 
-		Path pathDataFile = Paths.get(txtData.getText());
-		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Lade Daten aus ''{0}''.", pathDataFile.toAbsolutePath().normalize().toString())));
+		Task<Void> taskStats = new Task<Void>() {
+			@Override protected Void call() throws Exception {
 
-		Content theContent = null;
+				Path pathDataFile = Paths.get(txtData.getText());
+				appendTextLogMessage(MessageFormat.format("Lade Daten aus ''{0}''.", pathDataFile.toAbsolutePath().normalize().toString()));
 
-		if (pathDataFile.toString().endsWith(".csv")) {
-			theContent = readFromCSV(pathDataFile);
-		}
+				Content theContent = null;
 
-		if (pathDataFile.toString().endsWith(".ods")) {
-			theContent = readFromODS(pathDataFile);
-		}
-
-		if ((theContent == null) || theContent.getSeason().isEmpty()) {
-			txtLog.setText(String.format("%s%n%s", txtLog.getText(), "Keine Daten vorhanden."));
-			return;
-		}
-
-		Path pathOut = Paths.get(txtOutpath.getText());
-		txtLog.setText(String.format("%s%n%s", txtLog.getText(), MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString())));
-
-		Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
-		List<Match> lstMatches = theSeason.getMatch();
-		boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
-
-		// pie charts
-
-		// home/off
-		writePieChart(pathOut, theSeason, "home-off",
-				"Heim - Auswärts",
-				Optional.of(Colorschemes.Paired_qualitative_2),
-				new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
-				new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
-				);
-
-		// wins/losses
-		writePieChart(pathOut, theSeason, "win-loss",
-				"+/-",
-				Optional.empty(),
-				new PieSeries("+", lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
-				new PieSeries("-", lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
-				);
-
-		// home - wins/losses
-		writePieChart(pathOut, theSeason, "home-win-loss",
-				"Heim: +/-",
-				Optional.empty(),
-				new PieSeries("+", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-				new PieSeries("-", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-				);
-
-		// off - wins/losses
-		writePieChart(pathOut, theSeason, "off-win-loss",
-				"Auswärts: +/-",
-				Optional.empty(),
-				new PieSeries("+", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-				new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-				);
-
-		// number of sets
-		for (int i = 0; i <= 2; i++) {
-
-			final int count = i;
-
-			writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", count + 3),
-					String.format("%d Sätze: +/-", count + 3),
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					);
-
-		}
-
-		// set results
-		for (int i = 1; i <= 5; i++) {
-
-			List<Set> lstSets = new ArrayList<>();
-			for (Match theMatch : lstMatches) {
-				if (theMatch.getSet().size() >= i) {
-					lstSets.add(theMatch.getSet().get(i - 1));
-				}
-			}
-
-			writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", i),
-					String.format("Satz %d: +/-", i),
-					Optional.empty(),
-					new PieSeries("+", lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
-					);
-
-		}
-
-		if (hasLPZ) {
-
-			// strong opponent - wins/losses
-			writePieChart(pathOut, theSeason, "opp-strong-win-loss",
-					"Starker Gegner: +/-",
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					);
-
-			// weak opponent - wins/losses
-			writePieChart(pathOut, theSeason, "opp-weak-win-loss",
-					"Schwacher Gegner: +/-",
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					);
-
-		}
-
-		// after certain set result
-		Map<String, List<Match>> mapResultMatches = new HashMap<>();
-		for (Match theMatch : lstMatches) {
-			int iWon = 0;
-			int iLost = 0;
-
-			for (Set theSet : theMatch.getSet()) {
-				if (SetModel.WON.test(theSet)) {
-					iWon++;
-				} else {
-					iLost++;
+				if (pathDataFile.toString().endsWith(".csv")) {
+					theContent = readFromCSV(pathDataFile);
 				}
 
-				if ((iWon < 3) && (iLost < 3)) {
-					String sKey = String.format(RESULT_FORMAT, iWon, iLost);
-					mapResultMatches.computeIfAbsent(sKey, list -> new ArrayList<>());
-					mapResultMatches.get(sKey).add(theMatch);
+				if (pathDataFile.toString().endsWith(".ods")) {
+					theContent = readFromODS(pathDataFile);
 				}
 
-			}
+				if ((theContent == null) || theContent.getSeason().isEmpty()) {
+					appendTextLogMessage("Keine Daten vorhanden.");
+					return null;
+				}
 
-		}
+				Path pathOut = Paths.get(txtOutpath.getText());
+				appendTextLogMessage(MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString()));
 
-    	for (Entry<String, List<Match>> theResultMatch : mapResultMatches.entrySet()) {
-    		writePieChart(pathOut, theSeason, String.format("%s-win-loss", theResultMatch.getKey().replace(':', '-')),
-    				String.format("%s: +/-", theResultMatch.getKey()),
-    				Optional.empty(),
-    				new PieSeries("+", theResultMatch.getValue().stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
-    				new PieSeries("-", theResultMatch.getValue().stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
-    				);
-    	}
+				Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
+				List<Match> lstMatches = theSeason.getMatch();
+				boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
 
+				// pie charts
 
+				// home/off
+				writePieChart(pathOut, theSeason, "home-off",
+						"Heim - Auswärts",
+						Optional.of(Colorschemes.Paired_qualitative_2),
+						new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
+						new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
+						);
 
-		if (hasLPZ) {
+				// wins/losses
+				writePieChart(pathOut, theSeason, "win-loss",
+						"+/-",
+						Optional.empty(),
+						new PieSeries("+", lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
+						new PieSeries("-", lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
+						);
 
-			// lpz chart
-		    List<Date> lstDates = new ArrayList<>();
-		    List<Integer> lstLPZ = new ArrayList<>();
-		    List<Integer> lstLPZ0 = new ArrayList<>();
-		    Match lastMatch = null;
+				// home - wins/losses
+				writePieChart(pathOut, theSeason, "home-win-loss",
+						"Heim: +/-",
+						Optional.empty(),
+						new PieSeries("+", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+						new PieSeries("-", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+						);
 
-		    if (!lstMatches.isEmpty()) {
+				// off - wins/losses
+				writePieChart(pathOut, theSeason, "off-win-loss",
+						"Auswärts: +/-",
+						Optional.empty(),
+						new PieSeries("+", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+						new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+						);
 
-		    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
-	    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
-		    	lstLPZ0.add(0);
+				// number of sets
+				for (int i = 0; i <= 2; i++) {
 
-		    	for (Match theMatch : lstMatches) {
+					final int count = i;
 
-		    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
-		    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
-		    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
+					writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", count + 3),
+							String.format("%d Sätze: +/-", count + 3),
+							Optional.empty(),
+							new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+							);
 
-		    		lastMatch = theMatch;
+				}
 
+				// set results
+				for (int i = 1; i <= 5; i++) {
+
+					List<Set> lstSets = new ArrayList<>();
+					for (Match theMatch : lstMatches) {
+						if (theMatch.getSet().size() >= i) {
+							lstSets.add(theMatch.getSet().get(i - 1));
+						}
+					}
+
+					writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", i),
+							String.format("Satz %d: +/-", i),
+							Optional.empty(),
+							new PieSeries("+", lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
+							);
+
+				}
+
+				if (hasLPZ) {
+
+					// strong opponent - wins/losses
+					writePieChart(pathOut, theSeason, "opp-strong-win-loss",
+							"Starker Gegner: +/-",
+							Optional.empty(),
+							new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+							);
+
+					// weak opponent - wins/losses
+					writePieChart(pathOut, theSeason, "opp-weak-win-loss",
+							"Schwacher Gegner: +/-",
+							Optional.empty(),
+							new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+							);
+
+				}
+
+				// after certain set result
+				Map<String, List<Match>> mapResultMatches = new HashMap<>();
+				for (Match theMatch : lstMatches) {
+					int iWon = 0;
+					int iLost = 0;
+
+					for (Set theSet : theMatch.getSet()) {
+						if (SetModel.WON.test(theSet)) {
+							iWon++;
+						} else {
+							iLost++;
+						}
+
+						if ((iWon < 3) && (iLost < 3)) {
+							String sKey = String.format(RESULT_FORMAT, iWon, iLost);
+							mapResultMatches.computeIfAbsent(sKey, list -> new ArrayList<>());
+							mapResultMatches.get(sKey).add(theMatch);
+						}
+
+					}
+
+				}
+
+		    	for (Entry<String, List<Match>> theResultMatch : mapResultMatches.entrySet()) {
+		    		writePieChart(pathOut, theSeason, String.format("%s-win-loss", theResultMatch.getKey().replace(':', '-')),
+		    				String.format("%s: +/-", theResultMatch.getKey()),
+		    				Optional.empty(),
+		    				new PieSeries("+", theResultMatch.getValue().stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
+		    				new PieSeries("-", theResultMatch.getValue().stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
+		    				);
 		    	}
 
-		    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
-		    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
-	    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
-
-		    }
 
 
-	    	List<XYSeries> lstSeries = new ArrayList<>();
-		    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
+				if (hasLPZ) {
 
-			writeXYChart(pathOut, theSeason, "lpz",
-					"Live-PZ",
-					Optional.empty(),
-					lstSeries.toArray(new XYSeries[lstSeries.size()])
-					);
+					// lpz chart
+				    List<Date> lstDates = new ArrayList<>();
+				    List<Integer> lstLPZ = new ArrayList<>();
+				    List<Integer> lstLPZ0 = new ArrayList<>();
+				    Match lastMatch = null;
 
-	    	lstSeries = new ArrayList<>();
-		    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
+				    if (!lstMatches.isEmpty()) {
 
-			writeXYChart(pathOut, theSeason, "lpz-change",
-					"Live-PZ-Änderung",
-					Optional.empty(),
-					lstSeries.toArray(new XYSeries[lstSeries.size()])
-					);
+				    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
+			    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
+				    	lstLPZ0.add(0);
 
-			// lpz chart
-			List<CategorySeries> lstSeries2 = new ArrayList<>();
+				    	for (Match theMatch : lstMatches) {
 
-		    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
+				    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
+				    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
+				    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
 
-			writeCategoryChart(pathOut, theSeason, "lpz2",
-					"Live-PZ 2",
-					Optional.empty(),
-					lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
-					);
+				    		lastMatch = theMatch;
 
-		}
+				    	}
 
-		propBusy.setValue(false);
-		primaryStage.getScene().setCursor(Cursor.DEFAULT);
+				    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
+				    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
+			    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
+
+				    }
+
+
+			    	List<XYSeries> lstSeries = new ArrayList<>();
+				    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
+
+					writeXYChart(pathOut, theSeason, "lpz",
+							"Live-PZ",
+							Optional.empty(),
+							lstSeries.toArray(new XYSeries[lstSeries.size()])
+							);
+
+			    	lstSeries = new ArrayList<>();
+				    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
+
+					writeXYChart(pathOut, theSeason, "lpz-change",
+							"Live-PZ-Änderung",
+							Optional.empty(),
+							lstSeries.toArray(new XYSeries[lstSeries.size()])
+							);
+
+					// lpz chart
+					List<CategorySeries> lstSeries2 = new ArrayList<>();
+
+				    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
+
+					writeCategoryChart(pathOut, theSeason, "lpz2",
+							"Live-PZ 2",
+							Optional.empty(),
+							lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
+							);
+
+				}
+
+				return null;
+			}
+		};
+
+        // task succeeded - show results
+        taskStats.setOnSucceeded(event -> {
+
+        	appendTextLogMessage("Fertig.");
+        	propBusy.setValue(false);
+        	primaryStage.getScene().setCursor(Cursor.DEFAULT);
+
+        });
+
+        Thread thread = new Thread(taskStats);
+        thread.start();
 
 	}
 
@@ -705,7 +721,7 @@ public class AppLayoutController {
 
 				theSeason.getMatch().add(theMatch);
 
-				txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
+				appendTextLogMessage(String.format("  %03d - %s (%s)",
 						theSeason.getMatch().size(), theMatch.getTitle().getValue(),
 						theMatch.getResult().getWon().getValue() ? "gewonnen" : "verloren"
 						));
@@ -714,7 +730,7 @@ public class AppLayoutController {
 
 		} catch (IOException | IllegalStateException e) {
 			e.printStackTrace();
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+			appendTextLogMessage(String.format("  %s", e.getMessage()));
 			return null;
 		}
 
@@ -808,7 +824,7 @@ public class AppLayoutController {
 
 					theSeason.getMatch().add(theMatch);
 
-					txtLog.setText(String.format("%s%n  %03d - %s (%s)", txtLog.getText(),
+					appendTextLogMessage(String.format("  %03d - %s (%s)",
 							theSeason.getMatch().size(), theMatch.getTitle().getValue(),
 							theMatch.getResult().getWon().getValue() ? "gewonnen" : "verloren"
 							));
@@ -821,12 +837,28 @@ public class AppLayoutController {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+			appendTextLogMessage(String.format("  %s", e.getMessage()));
 			return null;
 		}
 
 		return theContent;
 
+	}
+
+	/**
+	 * Updates text log.
+	 *
+	 * @param message message to append
+	 *
+	 * @version 0.5.0
+	 * @since 0.5.0
+	 */
+	private void appendTextLogMessage(String message) {
+		if (Platform.isFxApplicationThread()) {
+			txtLog.appendText(String.format("%s%n", message));
+		} else {
+			Platform.runLater(() -> txtLog.appendText(String.format("%s%n", message)));
+		}
 	}
 
 	/**
@@ -949,11 +981,11 @@ public class AppLayoutController {
 				throw new IOException(String.format("Dateiformat '%s' unbekannt.", sFileFormat));
 			}
 
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), pathOut.toString()));
+			appendTextLogMessage(String.format("  %s", pathOut.toString()));
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			txtLog.setText(String.format("%s%n  %s", txtLog.getText(), e.getMessage()));
+			appendTextLogMessage(String.format("  %s", e.getMessage()));
 		}
 
 	}
