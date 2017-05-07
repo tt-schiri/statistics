@@ -41,26 +41,26 @@ import javafx.stage.Stage;
  * along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @author Ekkart Kleinod
- * @version 0.1.0
- * @since 0.1.0
+ * @version 0.5.0
+ * @since 0.5.0
  */
 public class Statistics extends Application {
 
 	/**
 	 * Program and doc version.
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
-	public static final Version VERSION = new VersionExt("0.1.0");
+	public static final Version VERSION = new VersionExt("0.5.0");
 
 	/**
 	 * Host services delegate.
 	 *
 	 * Needed for opening links in browser etc.
 	 *
-	 * @version 0.10.0
-	 * @since 0.10.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static HostServicesDelegate hostServices = null;
 
@@ -69,8 +69,8 @@ public class Statistics extends Application {
 	 *
 	 * @param args command line arguments
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	public static void main(String[] args) {
 		launch(args);
@@ -83,8 +83,8 @@ public class Statistics extends Application {
 	 *
 	 * @param primaryStage primary stage
 	 *
-	 * @version 0.1.0
-	 * @since 0.1.0
+	 * @version 0.5.0
+	 * @since 0.5.0
 	 */
 	@Override
 	public void start(Stage primaryStage) {
