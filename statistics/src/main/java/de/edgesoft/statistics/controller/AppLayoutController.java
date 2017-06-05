@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
@@ -877,11 +876,15 @@ public class AppLayoutController {
 	private void writePieChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
 
-	    PieChart chart = ChartFactory.createPieChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE), Optional.empty(), Optional.of(theColorscheme.orElse(Colorschemes.PiYG_diverging_2)));
+	    PieChart chart = ChartFactory.createPieChart(theTitle, CHARTSIZE, CHARTSIZE, Optional.empty(), Optional.of(theColorscheme.orElse(Colorschemes.PiYG_diverging_2)));
 
 	    for (PieSeries series : theSeries) {
 	    	chart.getSeriesMap().put(series.getName(), series);
 		}
+
+	    chart.getStyler().setDecimalPattern("#");
+	    chart.getStyler().setSumVisible(true);
+	    chart.getStyler().setSumFontSize(16f);
 
 	    writeChart(theOutputPath, theSeason, theFilename, chart);
 
@@ -903,7 +906,7 @@ public class AppLayoutController {
 	private void writeXYChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
 
-	    XYChart chart = ChartFactory.createXYChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4), theColorscheme);
+	    XYChart chart = ChartFactory.createXYChart(theTitle, CHARTSIZE, CHARTSIZE*4, theColorscheme);
 
 	    for (XYSeries series : theSeries) {
 	    	chart.getSeriesMap().put(series.getName(), series);
@@ -931,8 +934,7 @@ public class AppLayoutController {
 	private void writeCategoryChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
 
-	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, OptionalInt.of(CHARTSIZE), OptionalInt.of(CHARTSIZE*4),
-	    		Optional.empty(), theColorscheme);
+	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, CHARTSIZE, CHARTSIZE*4, Optional.empty(), theColorscheme);
 
 	    List<Integer> lstMin = new ArrayList<>();
 
