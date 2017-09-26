@@ -1,8 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>de.edgesoft</groupId>
   <artifactId>statistics</artifactId>
   <version>0.5.0-snapshot</version>
+  <packaging>jar</packaging>
+
   <name>Statistics</name>
   <description>Statistics for table tennis.</description>
   <url>https://github.com/tt-schiri/statistics</url>
@@ -10,6 +14,15 @@
   	<name>Ekkart Kleinod (edge-soft)</name>
   	<url>http://www.edgesoft.de/</url>
   </organization>
+
+  <issueManagement>
+  	<system>github</system>
+  	<url>https://github.com/tt-schiri/statistics/issues</url>
+  </issueManagement>
+  <scm>
+  	<url>https://github.com/tt-schiri/statistics</url>
+  	<developerConnection>ekleinod</developerConnection>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,22 +35,22 @@
   	<dependency>
   		<groupId>de.edgesoft</groupId>
   		<artifactId>edgeutils</artifactId>
-  		<version>0.9.8</version>
+  		<version>0.10.1</version>
   	</dependency>
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-csv</artifactId>
-	    <version>1.4</version>
+	    <version>1.5</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.knowm.xchart</groupId>
 	    <artifactId>xchart</artifactId>
-	    <version>3.3.1</version>
+	    <version>3.5.0</version>
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.odftoolkit</groupId>
 	    <artifactId>simple-odf</artifactId>
-	    <version>0.8.1-incubating</version>
+	    <version>0.8.2-incubating</version>
 	</dependency>
   </dependencies>
 
@@ -54,33 +67,29 @@
       </resource>
       <resource>
         <directory>src/main/java</directory>
-        <includes>
-        	<include>log4j2.xml</include>
-        </includes>
       </resource>
     </resources>
-  	<pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   	<plugins>
   	  <plugin>
-  	    <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <mainClass>de.edgesoft.statistics.Statistics</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-  	  </plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+	              <mainClass>de.edgesoft.statistics.Statistics</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
   	</plugins>
   </build>
 
