@@ -32,6 +32,7 @@ import org.knowm.xchart.VectorGraphicsEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
+import org.knowm.xchart.internal.series.Series.DataType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
@@ -609,7 +610,7 @@ public class AppLayoutController {
 					// lpz chart
 					List<CategorySeries> lstSeries2 = new ArrayList<>();
 
-				    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null));
+				    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null, DataType.Date));
 
 					writeCategoryChart(pathOut, theSeason, "lpz2",
 							"Live-PZ 2",
