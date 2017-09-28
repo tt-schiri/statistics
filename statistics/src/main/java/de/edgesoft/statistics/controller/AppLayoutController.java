@@ -41,6 +41,7 @@ import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
 import de.edgesoft.edgeutils.xchart.Colorschemes;
 import de.edgesoft.edgeutils.xchart.EncoderFormats;
+import de.edgesoft.edgeutils.xchart.XYSeriesUtils;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
@@ -114,141 +115,93 @@ public class AppLayoutController {
 
 	/**
 	 * Chart size.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	public static final int CHARTSIZE = 150;
 
 	/**
 	 * Result format.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	public static final String RESULT_FORMAT = "%d:%d";
 
 	/**
 	 * Application icon.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	public static final Image ICON = Resources.loadImage("images/icon-32.png");
 
 	/**
 	 * App border pane.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private BorderPane appPane;
 
 	/**
 	 * Menu item program -> quit.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private MenuItem mnuProgramQuit;
 
 	/**
 	 * Menu item help -> about.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private MenuItem mnuHelpAbout;
 
 	/**
 	 * Text field data file.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private TextField txtData;
 
 	/**
 	 * Text field output path.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private TextField txtOutpath;
 
 	/**
 	 * Radio button group file format.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private ToggleGroup grpFileFormat;
 
 	/**
 	 * Radio button file format png.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radPNG;
 
 	/**
 	 * Radio button file format jpg.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radJPG;
 
 	/**
 	 * Radio button file format gif.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radGIF;
 
 	/**
 	 * Radio button file format bmp.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radBMP;
 
 	/**
 	 * Radio button file format svg.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radSVG;
 
 	/**
 	 * Radio button file format pdf.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radPDF;
 
 	/**
 	 * Radio button file format eps.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private RadioButton radEPS;
@@ -257,9 +210,6 @@ public class AppLayoutController {
 
 	/**
 	 * Text area for log.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private TextArea txtLog;
@@ -267,9 +217,6 @@ public class AppLayoutController {
 
 	/**
 	 * Button create statistics.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private Button btnCreateStatistics;
@@ -277,18 +224,12 @@ public class AppLayoutController {
 
 	/**
 	 * Primary stage.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private Stage primaryStage = null;
 
 
 	/**
 	 * Busy property.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private BooleanProperty propBusy = new SimpleBooleanProperty(false);
 
@@ -297,9 +238,6 @@ public class AppLayoutController {
 	 * Initializes the controller class.
 	 *
 	 * This method is automatically called after the fxml file has been loaded.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private void initialize() {
@@ -314,9 +252,6 @@ public class AppLayoutController {
 	 * Initializes the controller with things, that cannot be done during {@link #initialize()}.
 	 *
 	 * @param thePrimaryStage primary stage
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	public void initController(final Stage thePrimaryStage) {
 
@@ -357,9 +292,6 @@ public class AppLayoutController {
 
 	/**
 	 * Program menu exit.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	public void handleProgramExit() {
@@ -373,9 +305,6 @@ public class AppLayoutController {
 
 	/**
 	 * Help menu about.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private void handleHelpAbout() {
@@ -398,9 +327,6 @@ public class AppLayoutController {
 
 	/**
 	 * Create statistics.
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	@FXML
 	private void handleCreateStatistics() {
@@ -590,7 +516,7 @@ public class AppLayoutController {
 
 
 			    	List<XYSeries> lstSeries = new ArrayList<>();
-				    lstSeries.add(new XYSeries("Live-PZ", lstDates, lstLPZ, null));
+				    lstSeries.add(XYSeriesUtils.getXYSeries("Live-PZ", lstDates, lstLPZ, null, DataType.Date));
 
 					writeXYChart(pathOut, theSeason, "lpz",
 							"Live-PZ",
@@ -599,7 +525,7 @@ public class AppLayoutController {
 							);
 
 			    	lstSeries = new ArrayList<>();
-				    lstSeries.add(new XYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null));
+				    lstSeries.add(XYSeriesUtils.getXYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null, DataType.Date));
 
 					writeXYChart(pathOut, theSeason, "lpz-change",
 							"Live-PZ-Änderung",
@@ -642,9 +568,6 @@ public class AppLayoutController {
 	 * Returns primary stage.
 	 *
 	 * @return primary stage
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	public Stage getPrimaryStage() {
 		return primaryStage;
@@ -655,9 +578,6 @@ public class AppLayoutController {
 	 *
 	 * @param theInputPath input path
 	 * @return content
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private Content readFromCSV(final Path theInputPath) {
 
@@ -743,9 +663,6 @@ public class AppLayoutController {
 	 *
 	 * @param theInputPath input path
 	 * @return content
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private Content readFromODS(final Path theInputPath) {
 
@@ -849,9 +766,6 @@ public class AppLayoutController {
 	 * Updates text log.
 	 *
 	 * @param message message to append
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private void appendTextLogMessage(String message) {
 		if (Platform.isFxApplicationThread()) {
@@ -870,9 +784,6 @@ public class AppLayoutController {
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private void writePieChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
@@ -900,9 +811,6 @@ public class AppLayoutController {
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private void writeXYChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
@@ -928,9 +836,6 @@ public class AppLayoutController {
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
 	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private void writeCategoryChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
 			final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
@@ -962,9 +867,6 @@ public class AppLayoutController {
 	 * @param theFilename filename
 	 * @param theChart chart
 	 * @param theSeries chart data
-	 *
-	 * @version 0.5.0
-	 * @since 0.5.0
 	 */
 	private void writeChart(final Path theOutputPath, final Season theSeason, final String theFilename, final Chart<?, ?> theChart) {
 
@@ -973,7 +875,6 @@ public class AppLayoutController {
 			String sFileFormat = ((RadioButton) grpFileFormat.getSelectedToggle()).getId().substring("rad".length()).toLowerCase();
 
 			// adding the file extension is not needed, the save methods add them themselves
-//			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s.%s", theSeason.getTitle().getValue(), theFilename, sFileFormat)).normalize();
 			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s", theSeason.getTitle().getValue(), theFilename)).normalize();
 
 			if (EncoderFormats.BitmapFormats().containsKey(sFileFormat)) {
