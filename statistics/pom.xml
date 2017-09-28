@@ -46,6 +46,20 @@
 	    <groupId>org.apache.odftoolkit</groupId>
 	    <artifactId>simple-odf</artifactId>
 	    <version>0.8.2-incubating</version>
+
+		<!--
+			Ugly fix for tools inclusion problem with Windows JDK.
+			Remove, when new version of simple-odf is published that declares this inclusion as optional.
+			See: https://issues.apache.org/jira/browse/ODFTOOLKIT-464
+		-->
+		<exclusions>
+		   <exclusion>
+		       <groupId>com.sun</groupId>
+		       <artifactId>tools</artifactId>
+		   </exclusion>
+		</exclusions>
+		<!-- End of ugly fix. -->
+
 	</dependency>
   </dependencies>
 
