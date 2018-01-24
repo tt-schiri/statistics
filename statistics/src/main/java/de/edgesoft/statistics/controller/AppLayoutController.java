@@ -124,6 +124,21 @@ public class AppLayoutController {
 	public static final String RESULT_FORMAT = "%d:%d";
 
 	/**
+	 * Minimum set count.
+	 */
+	public static final int SET_COUNT_MIN = 1;
+
+	/**
+	 * Maximum set count.
+	 */
+	public static final int SET_COUNT_MAX = 5;
+
+	/**
+	 * Extra time points.
+	 */
+	public static final int EXTRA_TIME_POINTS = 10;
+
+	/**
 	 * Application icon.
 	 */
 	public static final Image ICON = Resources.loadImage("images/icon-32.png");
@@ -398,31 +413,32 @@ public class AppLayoutController {
 						);
 
 				// number of sets
-				for (int i = 0; i <= 2; i++) {
+				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
 
-					final int count = i;
+					// variable is needed, because the filter cannot use the loop variable directly
+					int set_count = i;
 
-					writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", count + 3),
-							String.format("%d Sätze: +/-", count + 3),
+					writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", set_count),
+							String.format("%d Sätze: +/-", set_count),
 							Optional.empty(),
-							new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(count)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+							new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(set_count - 3)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(set_count - 3)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 							);
 
 				}
 
 				// set results
-				for (int i = 1; i <= 5; i++) {
+				for (int set_count = SET_COUNT_MIN; set_count <= SET_COUNT_MAX; set_count++) {
 
 					List<Set> lstSets = new ArrayList<>();
 					for (Match theMatch : lstMatches) {
-						if (theMatch.getSet().size() >= i) {
-							lstSets.add(theMatch.getSet().get(i - 1));
+						if (theMatch.getSet().size() >= set_count) {
+							lstSets.add(theMatch.getSet().get(set_count - 1));
 						}
 					}
 
-					writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", i),
-							String.format("Satz %d: +/-", i),
+					writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", set_count),
+							String.format("Satz %d: +/-", set_count),
 							Optional.empty(),
 							new PieSeries("+", lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
 							new PieSeries("-", lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
@@ -483,10 +499,54 @@ public class AppLayoutController {
 		    	}
 
 
+				// extra time
+				List<Set> lstAllSets = new ArrayList<>();
+				List<Set> lstLastSets = new ArrayList<>();
+				for (int set_count = SET_COUNT_MIN; set_count <= SET_COUNT_MAX; set_count++) {
 
+					List<Set> lstSingleSets = new ArrayList<>();
+					for (Match theMatch : lstMatches) {
+
+						if (theMatch.getSet().size() >= set_count) {
+							Set theSet = theMatch.getSet().get(set_count - 1);
+							if (theSet.getResult().getNumber().intValue() >= EXTRA_TIME_POINTS) {
+								lstSingleSets.add(theSet);
+								lstAllSets.add(theSet);
+								if (theMatch.getSet().size() == set_count) {
+									lstLastSets.add(theSet);
+								}
+							}
+
+						}
+
+					}
+
+					writePieChart(pathOut, theSeason, String.format("extra-set-%d-win-loss", set_count),
+							String.format("V-Satz %d: +/-", set_count),
+							Optional.empty(),
+							new PieSeries("+", lstSingleSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
+							new PieSeries("-", lstSingleSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
+							);
+
+				}
+				writePieChart(pathOut, theSeason, "extra-win-loss",
+						"Verlängerung: +/-",
+						Optional.empty(),
+						new PieSeries("+", lstAllSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
+						new PieSeries("-", lstAllSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
+						);
+				writePieChart(pathOut, theSeason, "extra-last-set-win-loss",
+						"V-Letzter-Satz: +/-",
+						Optional.empty(),
+						new PieSeries("+", lstLastSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
+						new PieSeries("-", lstLastSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
+						);
+
+
+
+				// lpz charts
 				if (hasLPZ) {
 
-					// lpz chart
 				    List<Date> lstDates = new ArrayList<>();
 				    List<Integer> lstLPZ = new ArrayList<>();
 				    List<Integer> lstLPZ0 = new ArrayList<>();
@@ -533,7 +593,6 @@ public class AppLayoutController {
 							lstSeries.toArray(new XYSeries[lstSeries.size()])
 							);
 
-					// lpz chart
 					List<CategorySeries> lstSeries2 = new ArrayList<>();
 
 				    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null, DataType.Date));
