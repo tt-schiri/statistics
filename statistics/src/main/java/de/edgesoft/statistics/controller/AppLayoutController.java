@@ -51,6 +51,8 @@ import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.jaxb.Set;
 import de.edgesoft.statistics.model.MatchModel;
 import de.edgesoft.statistics.model.SetModel;
+import de.edgesoft.statistics.plugins.IChartGenerator;
+import de.edgesoft.statistics.plugins.WinLossGenerator;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
 import de.edgesoft.statistics.utils.Prefs;
@@ -389,28 +391,11 @@ public class AppLayoutController {
 						);
 
 				// wins/losses
-				writePieChart(pathOut, theSeason, "win-loss",
-						"+/-",
-						Optional.empty(),
-						new PieSeries("+", lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
-						new PieSeries("-", lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
-						);
-
-				// home - wins/losses
-				writePieChart(pathOut, theSeason, "home-win-loss",
-						"Heim: +/-",
-						Optional.empty(),
-						new PieSeries("+", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-						new PieSeries("-", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-						);
-
-				// off - wins/losses
-				writePieChart(pathOut, theSeason, "off-win-loss",
-						"Auswärts: +/-",
-						Optional.empty(),
-						new PieSeries("+", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-						new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-						);
+				IChartGenerator chartGenerator = new WinLossGenerator();
+				chartGenerator.generateChart(theSeason).entrySet().stream()
+						.forEach(entrySet -> {
+							writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
+							});
 
 				// number of sets
 				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
