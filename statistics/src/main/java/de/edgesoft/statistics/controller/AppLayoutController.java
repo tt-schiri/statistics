@@ -36,6 +36,8 @@ import org.knowm.xchart.internal.series.Series.DataType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
+import org.pf4j.DefaultPluginManager;
+import org.pf4j.PluginManager;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
@@ -52,7 +54,6 @@ import de.edgesoft.statistics.jaxb.Set;
 import de.edgesoft.statistics.model.MatchModel;
 import de.edgesoft.statistics.model.SetModel;
 import de.edgesoft.statistics.plugins.IChartGenerator;
-import de.edgesoft.statistics.plugins.WinLossGenerator;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
 import de.edgesoft.statistics.utils.Prefs;
@@ -390,12 +391,27 @@ public class AppLayoutController {
 						new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
 						);
 
-				// wins/losses
-				IChartGenerator chartGenerator = new WinLossGenerator();
-				chartGenerator.generateChart(theSeason).entrySet().stream()
-						.forEach(entrySet -> {
-							writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
-							});
+				PluginManager pluginManager = new DefaultPluginManager();
+			    pluginManager.loadPlugins();
+			    pluginManager.startPlugins();
+
+				List<IChartGenerator> chartGenerators = pluginManager.getExtensions(IChartGenerator.class);
+				for (IChartGenerator chartGenerator : chartGenerators) {
+					System.out.println(chartGenerator);
+					chartGenerator.generateChart(theSeason).entrySet().stream()
+							.forEach(entrySet -> {
+								writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
+								});
+				}
+
+				pluginManager.stopPlugins();
+
+//				// wins/losses
+//				IChartGenerator chartGenerator = new WinLossGenerator();
+//				chartGenerator.generateChart(theSeason).entrySet().stream()
+//						.forEach(entrySet -> {
+//							writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
+//							});
 
 				// number of sets
 				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {

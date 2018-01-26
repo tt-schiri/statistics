@@ -5,6 +5,7 @@ import java.util.Map;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.internal.series.Series;
 import org.knowm.xchart.style.Styler;
+import org.pf4j.ExtensionPoint;
 
 import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.utils.StatisticsException;
@@ -39,7 +40,7 @@ import de.edgesoft.statistics.utils.StatisticsException;
  * @version 0.5.0
  * @since 0.5.0
  */
-public interface IChartGenerator {
+public interface IChartGenerator extends ExtensionPoint {
 
 	/**
 	 * Generates chart(s) and according filenames from season data.
