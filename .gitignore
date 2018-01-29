@@ -4,3 +4,4 @@
 *~
 *.bak
 /statistics/target/
+/statistics-plugins/target
