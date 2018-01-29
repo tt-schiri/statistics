@@ -1,6 +1,5 @@
 package de.edgesoft.statistics.controller;
 
-import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,29 +9,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.knowm.xchart.BitmapEncoder;
-import org.knowm.xchart.CategoryChart;
-import org.knowm.xchart.CategorySeries;
-import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
-import org.knowm.xchart.PieChart;
-import org.knowm.xchart.PieSeries;
 import org.knowm.xchart.VectorGraphicsEncoder;
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
-import org.knowm.xchart.internal.series.Series.DataType;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
@@ -41,10 +26,7 @@ import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
-import de.edgesoft.edgeutils.xchart.ChartFactory;
-import de.edgesoft.edgeutils.xchart.Colorschemes;
 import de.edgesoft.edgeutils.xchart.EncoderFormats;
-import de.edgesoft.edgeutils.xchart.XYSeriesUtils;
 import de.edgesoft.statistics.Statistics;
 import de.edgesoft.statistics.jaxb.Content;
 import de.edgesoft.statistics.jaxb.Match;
@@ -52,8 +34,6 @@ import de.edgesoft.statistics.jaxb.ObjectFactory;
 import de.edgesoft.statistics.jaxb.Result;
 import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.jaxb.Set;
-import de.edgesoft.statistics.model.MatchModel;
-import de.edgesoft.statistics.model.SetModel;
 import de.edgesoft.statistics.plugins.IChartGenerator;
 import de.edgesoft.statistics.utils.AlertUtils;
 import de.edgesoft.statistics.utils.PrefKey;
@@ -116,31 +96,6 @@ import javafx.stage.Stage;
  * @since 0.5.0
  */
 public class AppLayoutController {
-
-	/**
-	 * Chart size.
-	 */
-	public static final int CHARTSIZE = 150;
-
-	/**
-	 * Result format.
-	 */
-	public static final String RESULT_FORMAT = "%d:%d";
-
-	/**
-	 * Minimum set count.
-	 */
-	public static final int SET_COUNT_MIN = 1;
-
-	/**
-	 * Maximum set count.
-	 */
-	public static final int SET_COUNT_MAX = 5;
-
-	/**
-	 * Extra time points.
-	 */
-	public static final int EXTRA_TIME_POINTS = 10;
 
 	/**
 	 * Application icon.
@@ -357,6 +312,7 @@ public class AppLayoutController {
 		Task<Void> taskStats = new Task<Void>() {
 			@Override protected Void call() throws Exception {
 
+				// read and parse data
 				Path pathDataFile = Paths.get(txtData.getText());
 				appendTextLogMessage(MessageFormat.format("Lade Daten aus ''{0}''.", pathDataFile.toAbsolutePath().normalize().toString()));
 
@@ -378,8 +334,10 @@ public class AppLayoutController {
 				Path pathOut = Paths.get(txtOutpath.getText());
 				appendTextLogMessage(MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString()));
 
+				// select season to generate charts for
 				Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
 
+				// generate charts
 				PluginManager pluginManager = new DefaultPluginManager();
 			    pluginManager.loadPlugins();
 			    pluginManager.startPlugins();
@@ -396,208 +354,7 @@ public class AppLayoutController {
 			    	}
 				}
 
-
 				pluginManager.stopPlugins();
-
-
-
-				List<Match> lstMatches = theSeason.getMatch();
-				boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
-
-				// pie charts
-
-				// number of sets
-				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
-
-					// variable is needed, because the filter cannot use the loop variable directly
-					int set_count = i;
-
-					writePieChart(pathOut, theSeason, String.format("%d-sets-win-loss", set_count),
-							String.format("%d Sätze: +/-", set_count),
-							Optional.empty(),
-							new PieSeries("+", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(set_count - 3)).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstMatches.stream().filter(match -> match.getResult().getNumber().getValue() == Integer.valueOf(set_count - 3)).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-							);
-
-				}
-
-				// set results
-				for (int set_count = SET_COUNT_MIN; set_count <= SET_COUNT_MAX; set_count++) {
-
-					List<Set> lstSets = new ArrayList<>();
-					for (Match theMatch : lstMatches) {
-						if (theMatch.getSet().size() >= set_count) {
-							lstSets.add(theMatch.getSet().get(set_count - 1));
-						}
-					}
-
-					writePieChart(pathOut, theSeason, String.format("set-%d-win-loss", set_count),
-							String.format("Satz %d: +/-", set_count),
-							Optional.empty(),
-							new PieSeries("+", lstSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
-							);
-
-				}
-
-				if (hasLPZ) {
-
-					// strong opponent - wins/losses
-					writePieChart(pathOut, theSeason, "opp-strong-win-loss",
-							"Starker Gegner: +/-",
-							Optional.empty(),
-							new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-							);
-
-					// weak opponent - wins/losses
-					writePieChart(pathOut, theSeason, "opp-weak-win-loss",
-							"Schwacher Gegner: +/-",
-							Optional.empty(),
-							new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-							);
-
-				}
-
-				// after certain set result
-				Map<String, List<Match>> mapResultMatches = new HashMap<>();
-				for (Match theMatch : lstMatches) {
-					int iWon = 0;
-					int iLost = 0;
-
-					for (Set theSet : theMatch.getSet()) {
-						if (SetModel.WON.test(theSet)) {
-							iWon++;
-						} else {
-							iLost++;
-						}
-
-						if ((iWon < 3) && (iLost < 3)) {
-							String sKey = String.format(RESULT_FORMAT, iWon, iLost);
-							mapResultMatches.computeIfAbsent(sKey, list -> new ArrayList<>());
-							mapResultMatches.get(sKey).add(theMatch);
-						}
-
-					}
-
-				}
-
-		    	for (Entry<String, List<Match>> theResultMatch : mapResultMatches.entrySet()) {
-		    		writePieChart(pathOut, theSeason, String.format("%s-win-loss", theResultMatch.getKey().replace(':', '-')),
-		    				String.format("%s: +/-", theResultMatch.getKey()),
-		    				Optional.empty(),
-		    				new PieSeries("+", theResultMatch.getValue().stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
-		    				new PieSeries("-", theResultMatch.getValue().stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
-		    				);
-		    	}
-
-
-				// extra time
-				List<Set> lstAllSets = new ArrayList<>();
-				List<Set> lstLastSets = new ArrayList<>();
-				for (int set_count = SET_COUNT_MIN; set_count <= SET_COUNT_MAX; set_count++) {
-
-					List<Set> lstSingleSets = new ArrayList<>();
-					for (Match theMatch : lstMatches) {
-
-						if (theMatch.getSet().size() >= set_count) {
-							Set theSet = theMatch.getSet().get(set_count - 1);
-							if (theSet.getResult().getNumber().intValue() >= EXTRA_TIME_POINTS) {
-								lstSingleSets.add(theSet);
-								lstAllSets.add(theSet);
-								if (theMatch.getSet().size() == set_count) {
-									lstLastSets.add(theSet);
-								}
-							}
-
-						}
-
-					}
-
-					writePieChart(pathOut, theSeason, String.format("extra-set-%d-win-loss", set_count),
-							String.format("V-Satz %d: +/-", set_count),
-							Optional.empty(),
-							new PieSeries("+", lstSingleSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
-							new PieSeries("-", lstSingleSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
-							);
-
-				}
-				writePieChart(pathOut, theSeason, "extra-win-loss",
-						"Verlängerung: +/-",
-						Optional.empty(),
-						new PieSeries("+", lstAllSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
-						new PieSeries("-", lstAllSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
-						);
-				writePieChart(pathOut, theSeason, "extra-last-set-win-loss",
-						"V-Letzter-Satz: +/-",
-						Optional.empty(),
-						new PieSeries("+", lstLastSets.stream().filter(SetModel.WON).collect(Collectors.toList()).size()),
-						new PieSeries("-", lstLastSets.stream().filter(SetModel.LOST).collect(Collectors.toList()).size())
-						);
-
-
-
-				// lpz charts
-				if (hasLPZ) {
-
-				    List<Date> lstDates = new ArrayList<>();
-				    List<Integer> lstLPZ = new ArrayList<>();
-				    List<Integer> lstLPZ0 = new ArrayList<>();
-				    Match lastMatch = null;
-
-				    if (!lstMatches.isEmpty()) {
-
-				    	lstDates.add(DateTimeUtils.toDate((LocalDate) lstMatches.get(0).getDate().getValue()));
-			    		lstLPZ.add(lstMatches.get(0).getLivePzBefore().getValue());
-				    	lstLPZ0.add(0);
-
-				    	for (Match theMatch : lstMatches) {
-
-				    		lstDates.add(DateTimeUtils.toDate((LocalDate) theMatch.getDate().getValue()));
-				    		lstLPZ.add(theMatch.getLivePzBefore().getValue());
-				    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + theMatch.getLivePzDiff().getValue());
-
-				    		lastMatch = theMatch;
-
-				    	}
-
-				    	lstDates.add(DateTimeUtils.toDate((LocalDate) lastMatch.getDate().getValue()));
-				    	lstLPZ.add(lastMatch.getLivePzAfter().getValue());
-			    		lstLPZ0.add(lstLPZ0.get(lstLPZ0.size() - 1) + lastMatch.getLivePzDiff().getValue());
-
-				    }
-
-
-			    	List<XYSeries> lstSeries = new ArrayList<>();
-				    lstSeries.add(XYSeriesUtils.getXYSeries("Live-PZ", lstDates, lstLPZ, null, DataType.Date));
-
-					writeXYChart(pathOut, theSeason, "lpz",
-							"Live-PZ",
-							Optional.empty(),
-							lstSeries.toArray(new XYSeries[lstSeries.size()])
-							);
-
-			    	lstSeries = new ArrayList<>();
-				    lstSeries.add(XYSeriesUtils.getXYSeries("Live-PZ-Änderung", lstDates, lstLPZ0, null, DataType.Date));
-
-					writeXYChart(pathOut, theSeason, "lpz-change",
-							"Live-PZ-Änderung",
-							Optional.empty(),
-							lstSeries.toArray(new XYSeries[lstSeries.size()])
-							);
-
-					List<CategorySeries> lstSeries2 = new ArrayList<>();
-
-				    lstSeries2.add(new CategorySeries("Live-PZ", lstDates, lstLPZ, null, DataType.Date));
-
-					writeCategoryChart(pathOut, theSeason, "lpz2",
-							"Live-PZ 2",
-							Optional.empty(),
-							lstSeries2.toArray(new CategorySeries[lstSeries2.size()])
-							);
-
-				}
 
 				return null;
 			}
@@ -826,90 +583,6 @@ public class AppLayoutController {
 		} else {
 			Platform.runLater(() -> txtLog.appendText(String.format("%s%n", message)));
 		}
-	}
-
-	/**
-	 * Write pie chart.
-	 *
-	 * @param theOutputPath output path
-	 * @param theSeason season
-	 * @param theFilename filename
-	 * @param theTitle chart title
-	 * @param theColorscheme color scheme (optional)
-	 * @param theSeries chart data
-	 */
-	private void writePieChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
-			final Optional<Colorschemes> theColorscheme, final PieSeries... theSeries) {
-
-	    PieChart chart = ChartFactory.createPieChart(theTitle, CHARTSIZE, CHARTSIZE, Optional.empty(), Optional.of(theColorscheme.orElse(Colorschemes.PiYG_diverging_2)));
-
-	    for (PieSeries series : theSeries) {
-	    	chart.getSeriesMap().put(series.getName(), series);
-		}
-
-	    chart.getStyler().setDecimalPattern("#");
-	    chart.getStyler().setSumVisible(true);
-	    chart.getStyler().setSumFontSize(16f);
-
-	    writeChart(theOutputPath, theSeason, theFilename, chart);
-
-	}
-
-	/**
-	 * Write xy chart.
-	 *
-	 * @param theOutputPath output path
-	 * @param theSeason season
-	 * @param theFilename filename
-	 * @param theTitle chart title
-	 * @param theColorscheme color scheme (optional)
-	 * @param theSeries chart data
-	 */
-	private void writeXYChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
-			final Optional<Colorschemes> theColorscheme, final XYSeries... theSeries) {
-
-	    XYChart chart = ChartFactory.createXYChart(theTitle, CHARTSIZE, CHARTSIZE*4, theColorscheme);
-
-	    for (XYSeries series : theSeries) {
-	    	chart.getSeriesMap().put(series.getName(), series);
-		}
-
-	    chart.getStyler().setMarkerSize(4);
-
-	    writeChart(theOutputPath, theSeason, theFilename, chart);
-
-	}
-
-	/**
-	 * Write category chart.
-	 *
-	 * @param theOutputPath output path
-	 * @param theSeason season
-	 * @param theFilename filename
-	 * @param theTitle chart title
-	 * @param theColorscheme color scheme (optional)
-	 * @param theSeries chart data
-	 */
-	private void writeCategoryChart(final Path theOutputPath, final Season theSeason, final String theFilename, final String theTitle,
-			final Optional<Colorschemes> theColorscheme, final CategorySeries... theSeries) {
-
-	    CategoryChart chart = ChartFactory.createCategoryChart(theTitle, CHARTSIZE, CHARTSIZE*4, Optional.empty(), theColorscheme);
-
-	    List<Integer> lstMin = new ArrayList<>();
-
-	    for (CategorySeries series : theSeries) {
-	    	series.setFillColor(new Color(0, 0, 0, 0));
-	    	series.setChartCategorySeriesRenderStyle(CategorySeriesRenderStyle.SteppedBar);
-
-	    	lstMin.add(((Collection<Integer>) series.getYData()).stream().min(Integer::compare).get());
-
-	    	chart.getSeriesMap().put(series.getName(), series);
-		}
-
-	    chart.getStyler().setYAxisMin(lstMin.stream().min(Integer::compare).get().doubleValue());
-
-	    writeChart(theOutputPath, theSeason, theFilename, chart);
-
 	}
 
 	/**

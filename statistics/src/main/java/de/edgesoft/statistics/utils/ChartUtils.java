@@ -92,7 +92,7 @@ public class ChartUtils {
 	 *
 	 * @return generated chart
 	 */
-	public static XYChart writeXYChart(
+	public static XYChart generateXYChart(
 			final String theTitle,
 			final Optional<Colorschemes> theColorscheme,
 			final XYSeries... theSeries) {
@@ -118,7 +118,7 @@ public class ChartUtils {
 	 *
 	 * @return generated chart
 	 */
-	public static CategoryChart writeCategoryChart(
+	public static CategoryChart generateCategoryChart(
 			final String theTitle,
 			final Optional<Colorschemes> theColorscheme,
 			final CategorySeries... theSeries) {

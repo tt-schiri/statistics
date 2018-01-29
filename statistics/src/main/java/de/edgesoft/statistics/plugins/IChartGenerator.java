@@ -43,6 +43,26 @@ import de.edgesoft.statistics.utils.StatisticsException;
 public interface IChartGenerator extends ExtensionPoint {
 
 	/**
+	 * Set result format.
+	 */
+	public static final String SET_RESULT_FORMAT = "%d:%d";
+
+	/**
+	 * Minimum set count.
+	 */
+	public static final int SET_COUNT_MIN = 1;
+
+	/**
+	 * Maximum set count.
+	 */
+	public static final int SET_COUNT_MAX = 5;
+
+	/**
+	 * Extra time points.
+	 */
+	public static final int EXTRA_TIME_POINTS = 10;
+
+	/**
 	 * Generates chart(s) and according filenames from season data.
 	 *
 	 * @param theSeason season data

@@ -82,6 +82,28 @@ public class WinLossGeneratorImpl implements IChartGenerator {
 				new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
 				));
 
+		boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
+
+		if (hasLPZ) {
+
+			// strong opponent - wins/losses
+			mapReturn.put("opp-strong-win-loss", ChartUtils.generatePieChart(
+					"Starker Gegner: +/-",
+					Optional.empty(),
+					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() >= match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+					));
+
+			// weak opponent - wins/losses
+			mapReturn.put("opp-weak-win-loss", ChartUtils.generatePieChart(
+					"Schwacher Gegner: +/-",
+					Optional.empty(),
+					new PieSeries("+", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.WON).collect(Collectors.toList()).size()),
+					new PieSeries("-", lstMatches.stream().filter(match -> match.getLivePzOther().getValue() < match.getLivePzBefore().getValue()).filter(MatchModel.LOST).collect(Collectors.toList()).size())
+					));
+
+		}
+
 		return mapReturn;
 
 	}

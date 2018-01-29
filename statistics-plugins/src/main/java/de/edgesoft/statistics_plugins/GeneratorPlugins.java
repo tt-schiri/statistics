@@ -49,6 +49,15 @@ public class GeneratorPlugins extends Plugin {
 	@Extension
 	public static class WinLossGenerator extends WinLossGeneratorImpl {}
 
+	@Extension
+	public static class SetsGenerator extends SetsGeneratorImpl {}
+
+	@Extension
+	public static class ExtraTimeGenerator extends ExtraTimeGeneratorImpl {}
+
+	@Extension
+	public static class LivePZGenerator extends LivePZGeneratorImpl {}
+
 }
 
 /* EOF */
