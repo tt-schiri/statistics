@@ -84,7 +84,7 @@ public class ChartUtils {
 	}
 
 	/**
-	 * Write xy chart.
+	 * Generates xy chart.
 	 *
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)
@@ -110,7 +110,7 @@ public class ChartUtils {
 	}
 
 	/**
-	 * Write category chart.
+	 * Generates category chart.
 	 *
 	 * @param theTitle chart title
 	 * @param theColorscheme color scheme (optional)

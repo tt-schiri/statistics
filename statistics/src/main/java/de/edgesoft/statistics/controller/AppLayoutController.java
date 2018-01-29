@@ -38,6 +38,7 @@ import org.odftoolkit.simple.table.Row;
 import org.odftoolkit.simple.table.Table;
 import org.pf4j.DefaultPluginManager;
 import org.pf4j.PluginManager;
+import org.pf4j.PluginWrapper;
 
 import de.edgesoft.edgeutils.datetime.DateTimeUtils;
 import de.edgesoft.edgeutils.xchart.ChartFactory;
@@ -378,6 +379,28 @@ public class AppLayoutController {
 				appendTextLogMessage(MessageFormat.format("Erzeuge Grafiken in ''{0}''.", pathOut.toAbsolutePath().normalize().toString()));
 
 				Season theSeason = theContent.getSeason().get(theContent.getSeason().size() - 1);
+
+				PluginManager pluginManager = new DefaultPluginManager();
+			    pluginManager.loadPlugins();
+			    pluginManager.startPlugins();
+
+			    List<PluginWrapper> lstPlugins = pluginManager.getPlugins();
+			    for (PluginWrapper plugin : lstPlugins) {
+			    	List<IChartGenerator> chartGenerators = pluginManager.getExtensions(IChartGenerator.class, plugin.getDescriptor().getPluginId());
+			    	for (IChartGenerator chartGenerator : chartGenerators) {
+			    		appendTextLogMessage(MessageFormat.format("  Nutze Generator ''{0}'' aus Plugin ''{1}''.", chartGenerator.getClass().getSimpleName(), plugin.getDescriptor().getPluginId()));
+			    		chartGenerator.generateChart(theSeason).entrySet().stream()
+			    		.forEach(entrySet -> {
+			    			writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
+			    		});
+			    	}
+				}
+
+
+				pluginManager.stopPlugins();
+
+
+
 				List<Match> lstMatches = theSeason.getMatch();
 				boolean hasLPZ = !lstMatches.isEmpty() && (lstMatches.get(0).getLivePzDiff() != null);
 
@@ -390,21 +413,6 @@ public class AppLayoutController {
 						new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
 						new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
 						);
-
-				PluginManager pluginManager = new DefaultPluginManager();
-			    pluginManager.loadPlugins();
-			    pluginManager.startPlugins();
-
-				List<IChartGenerator> chartGenerators = pluginManager.getExtensions(IChartGenerator.class);
-				for (IChartGenerator chartGenerator : chartGenerators) {
-					appendTextLogMessage(MessageFormat.format("  Nutze Generator ''{0}'' aus Plugin.", chartGenerator.getClass().getSimpleName()));
-					chartGenerator.generateChart(theSeason).entrySet().stream()
-							.forEach(entrySet -> {
-								writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
-								});
-				}
-
-				pluginManager.stopPlugins();
 
 				// number of sets
 				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
@@ -938,11 +946,11 @@ public class AppLayoutController {
 				throw new IOException(String.format("Dateiformat '%s' unbekannt.", sFileFormat));
 			}
 
-			appendTextLogMessage(String.format("  %s", pathOut.toString()));
+			appendTextLogMessage(String.format("    %s", pathOut.toString()));
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			appendTextLogMessage(String.format("  %s", e.getMessage()));
+			appendTextLogMessage(String.format("    %s", e.getMessage()));
 		}
 
 	}
