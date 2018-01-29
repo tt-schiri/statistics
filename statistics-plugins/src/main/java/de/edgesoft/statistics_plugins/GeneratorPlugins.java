@@ -14,6 +14,7 @@ import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 
+import de.edgesoft.edgeutils.xchart.Colorschemes;
 import de.edgesoft.statistics.jaxb.Match;
 import de.edgesoft.statistics.jaxb.Season;
 import de.edgesoft.statistics.model.MatchModel;
@@ -56,6 +57,34 @@ public class GeneratorPlugins extends Plugin {
 	public GeneratorPlugins(PluginWrapper wrapper) {
         super(wrapper);
     }
+
+	/**
+	 * Chart generation home-off.
+	 */
+	@Extension
+	public static class HomeOffGenerator implements IChartGenerator {
+
+		public Map<String, Chart<? extends Styler, ? extends Series>> generateChart(
+				final Season theSeason
+				) throws StatisticsException {
+
+			Map<String, Chart<? extends Styler, ? extends Series>> mapReturn = new HashMap<>();
+
+			List<Match> lstMatches = theSeason.getMatch();
+
+			// home/off
+			mapReturn.put("home-off", ChartUtils.generatePieChart(
+					"Heim - Auswärts",
+					Optional.of(Colorschemes.Paired_qualitative_2),
+					new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
+					new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
+					));
+
+			return mapReturn;
+
+		}
+
+	}
 
 	/**
 	 * Chart generation wins-losses.

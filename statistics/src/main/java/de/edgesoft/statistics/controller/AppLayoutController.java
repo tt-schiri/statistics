@@ -406,14 +406,6 @@ public class AppLayoutController {
 
 				// pie charts
 
-				// home/off
-				writePieChart(pathOut, theSeason, "home-off",
-						"Heim - Auswärts",
-						Optional.of(Colorschemes.Paired_qualitative_2),
-						new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
-						new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
-						);
-
 				// number of sets
 				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
 
