@@ -397,7 +397,7 @@ public class AppLayoutController {
 
 				List<IChartGenerator> chartGenerators = pluginManager.getExtensions(IChartGenerator.class);
 				for (IChartGenerator chartGenerator : chartGenerators) {
-					System.out.println(chartGenerator);
+					appendTextLogMessage(MessageFormat.format("  Nutze Generator ''{0}'' aus Plugin.", chartGenerator.getClass().getSimpleName()));
 					chartGenerator.generateChart(theSeason).entrySet().stream()
 							.forEach(entrySet -> {
 								writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
@@ -405,13 +405,6 @@ public class AppLayoutController {
 				}
 
 				pluginManager.stopPlugins();
-
-//				// wins/losses
-//				IChartGenerator chartGenerator = new WinLossGenerator();
-//				chartGenerator.generateChart(theSeason).entrySet().stream()
-//						.forEach(entrySet -> {
-//							writeChart(pathOut, theSeason, entrySet.getKey(), entrySet.getValue());
-//							});
 
 				// number of sets
 				for (int i = SET_COUNT_MIN + 2; i <= SET_COUNT_MAX; i++) {
