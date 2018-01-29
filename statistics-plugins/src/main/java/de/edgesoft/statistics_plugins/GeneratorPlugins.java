@@ -1,29 +1,14 @@
 package de.edgesoft.statistics_plugins;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.knowm.xchart.PieSeries;
-import org.knowm.xchart.internal.chartpart.Chart;
-import org.knowm.xchart.internal.series.Series;
-import org.knowm.xchart.style.Styler;
 import org.pf4j.Extension;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 
-import de.edgesoft.edgeutils.xchart.Colorschemes;
-import de.edgesoft.statistics.jaxb.Match;
-import de.edgesoft.statistics.jaxb.Season;
-import de.edgesoft.statistics.model.MatchModel;
-import de.edgesoft.statistics.plugins.IChartGenerator;
-import de.edgesoft.statistics.utils.ChartUtils;
-import de.edgesoft.statistics.utils.StatisticsException;
-
 /**
  * Generation plugins.
+ *
+ * I am implementing the generators in separate classes for clearance
+ * and use them here for plugin purposes.
  *
  * ## Legal stuff
  *
@@ -58,77 +43,11 @@ public class GeneratorPlugins extends Plugin {
         super(wrapper);
     }
 
-	/**
-	 * Chart generation home-off.
-	 */
 	@Extension
-	public static class HomeOffGenerator implements IChartGenerator {
+	public static class HomeOffGenerator extends HomeOffGeneratorImpl {}
 
-		public Map<String, Chart<? extends Styler, ? extends Series>> generateChart(
-				final Season theSeason
-				) throws StatisticsException {
-
-			Map<String, Chart<? extends Styler, ? extends Series>> mapReturn = new HashMap<>();
-
-			List<Match> lstMatches = theSeason.getMatch();
-
-			// home/off
-			mapReturn.put("home-off", ChartUtils.generatePieChart(
-					"Heim - Auswärts",
-					Optional.of(Colorschemes.Paired_qualitative_2),
-					new PieSeries("Heim", lstMatches.stream().filter(MatchModel.HOME).collect(Collectors.toList()).size()),
-					new PieSeries("Auswärts", lstMatches.stream().filter(MatchModel.OFF).collect(Collectors.toList()).size())
-					));
-
-			return mapReturn;
-
-		}
-
-	}
-
-	/**
-	 * Chart generation wins-losses.
-	 */
 	@Extension
-	public static class WinLossGenerator implements IChartGenerator {
-
-		public Map<String, Chart<? extends Styler, ? extends Series>> generateChart(
-				final Season theSeason
-				) throws StatisticsException {
-
-			Map<String, Chart<? extends Styler, ? extends Series>> mapReturn = new HashMap<>();
-
-			List<Match> lstMatches = theSeason.getMatch();
-
-			// wins/losses
-			mapReturn.put("win-loss", ChartUtils.generatePieChart(
-					"+/-",
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					));
-
-			// home - wins/losses
-			mapReturn.put("home-win-loss", ChartUtils.generatePieChart(
-					"Heim: +/-",
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(MatchModel.HOME).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					));
-
-			// off - wins/losses
-			mapReturn.put("off-win-loss", ChartUtils.generatePieChart(
-					"Auswärts: +/-",
-					Optional.empty(),
-					new PieSeries("+", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.WON).collect(Collectors.toList()).size()),
-					new PieSeries("-", lstMatches.stream().filter(MatchModel.OFF).filter(MatchModel.LOST).collect(Collectors.toList()).size())
-					));
-
-			return mapReturn;
-
-		}
-
-	}
+	public static class WinLossGenerator extends WinLossGeneratorImpl {}
 
 }
 
