@@ -41,11 +41,7 @@ public class AboutTextController {
 	 * Email link.
 	 *
 	 * @param theEvent action event
-	 *
-	 * @version 0.10.0
-	 * @since 0.10.0
 	 */
-	@SuppressWarnings("static-method")
 	@FXML
 	private void handleEmailLinkAction(final ActionEvent theEvent) {
 		Statistics.hostServices.showDocument(String.format("mailto:%s", ((Hyperlink) theEvent.getTarget()).getText()));
@@ -55,11 +51,7 @@ public class AboutTextController {
 	 * Web link.
 	 *
 	 * @param theEvent action event
-	 *
-	 * @version 0.10.0
-	 * @since 0.10.0
 	 */
-	@SuppressWarnings("static-method")
 	@FXML
 	private void handleWebLinkAction(final ActionEvent theEvent) {
 		Statistics.hostServices.showDocument(((Hyperlink) theEvent.getTarget()).getText());

@@ -600,9 +600,11 @@ public class AppLayoutController {
 
 			String sFileFormat = ((RadioButton) grpFileFormat.getSelectedToggle()).getId().substring("rad".length()).toLowerCase();
 
+			Paths.get(theOutputPath.toString(), theSeason.getTitle().getValue()).normalize().toFile().mkdirs();
+			
 			// adding the file extension is not needed, the save methods add them themselves
-			Path pathOut = Paths.get(theOutputPath.toString(), String.format("%s_%s", theSeason.getTitle().getValue(), theFilename)).normalize();
-
+			Path pathOut = Paths.get(theOutputPath.toString(), theSeason.getTitle().getValue(), theFilename).normalize();
+			
 			if (EncoderFormats.BitmapFormats().containsKey(sFileFormat)) {
 			    BitmapEncoder.saveBitmap(theChart, pathOut.toString(), EncoderFormats.BitmapFormats().get(sFileFormat));
 			} else if (EncoderFormats.VectorFormats().containsKey(sFileFormat)) {
