@@ -128,6 +128,10 @@ public class SetsGeneratorImpl implements IChartGenerator {
     				));
     	}
 
+		for (int set_count = SET_COUNT_ZERO; set_count <= SET_COUNT_MAX1; set_count++) {
+			System.out.println(set_count);
+		}
+
 		return mapReturn;
 
 	}

@@ -48,6 +48,21 @@ public interface IChartGenerator extends ExtensionPoint {
 	public static final String SET_RESULT_FORMAT = "%d:%d";
 
 	/**
+	 * Set count zero.
+	 */
+	public static final int SET_COUNT_ZERO = 0;
+
+	/**
+	 * Set count best-of.
+	 */
+	public static final int SET_COUNT_BEST_OF = 5;
+
+	/**
+	 * Set count max number of set per opponent.
+	 */
+	public static final int SET_COUNT_MAX1 = ((int) (SET_COUNT_BEST_OF / 2)) + 1;
+
+	/**
 	 * Minimum set count.
 	 */
 	public static final int SET_COUNT_MIN = 1;
