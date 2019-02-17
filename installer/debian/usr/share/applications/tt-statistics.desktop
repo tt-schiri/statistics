@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=TT-Statistics
+Name[de]=TT-Statistik
+Comment=Generates table-tennis statistics.
+Comment[de]=Generiert TT-Statistiken.
+Exec=/bin/tt-statistics
+Icon=/usr/share/tt-statistics/icon.svg
+Terminal=false
+Type=Application
+Categories=Java;Application;Office;Chart
+StartupNotify=true

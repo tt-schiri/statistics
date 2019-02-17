@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 *~
+*.bak
+/statistics/target/
+/statistics-plugins/target

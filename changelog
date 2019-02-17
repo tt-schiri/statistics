@@ -1,26 +1,26 @@
-# v0.4.0
+tt-statistics (0.4.0) unstable; urgency=low
 
-*Released:* 2017-03-06
+ * moving to tt-schiri: new license and changelog
 
-- moving to tt-schiri: new license and changelog
+-- Ekkart Kleinod <ekleinod@edgesoft.de>  Mon, 6 Mar 2017 12:00:00 +0100
 
-# v0.3.0
+tt-statistics (0.3.0) unstable; urgency=low
 
-*Released:* 2017-03-06
+ * more data, less statistics
 
-- more data, less statistics
+-- Ekkart Kleinod <ekleinod@edgesoft.de>  Mon, 6 Mar 2017 11:00:00 +0100
 
-# v0.2
+tt-statistics (0.2.0) unstable; urgency=low
 
-*Released:* 2015-09-17
+ * Wins-Losses pie chart
 
-- Wins-Losses pie chart
+-- Ekkart Kleinod <ekleinod@edgesoft.de>  Sun, 17 Sep 2015 12:00:00 +0100
 
-# v0.1
+tt-statistics (0.1.0) unstable; urgency=low
 
-*Released:* 2015-09-17
+	* License, readme
+	* example data
+	* reading example data
+	* Live development in a line chart
 
-- License, readme
-- example data
-- reading example data
-- Live development in a line chart
+-- Ekkart Kleinod <ekleinod@edgesoft.de>  Sun, 17 Sep 2015 11:00:00 +0100

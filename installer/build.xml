@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+Create all statistics installer.
+
+Target "debinstall" has to be run as root in order to change owner and group accordingly.
+
+# Legal stuff
+
+Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
+
+The program is distributed under the terms of the GNU General Public License.
+
+See COPYING for details.
+
+This file is part of TT-Schiri: Statistics.
+
+TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TT-Schiri: Statistics is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
+
+@author Ekkart Kleinod
+@version 0.5.0
+@since 0.5.0
+
+-->
+
+<project name="tt-statistics" default="help" basedir=".">
+
+	<!-- ant-contrib has to be installed -->
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+	<property file="project.properties"/>
+
+	<import file="${dir.win}/build.xml" />
+
+	<target name="debinstall" depends="clearLog" description="Create debian installer (run as root).">
+
+		<fail message="You need to be root to create the debian installer, call 'sudo ant debinstall'.">
+			<condition>
+				<not>
+					<equals arg1="root" arg2="${user.name}"/>
+				</not>
+			</condition>
+		</fail>
+
+		<!-- copy templates -->
+		<copy toDir="${dir.debiantmp}">
+			<fileset dir="${dir.debian}" />
+		</copy>
+
+		<!-- changelog -->
+		<gzip
+			src="../changelog"
+			destfile="${dir.debiantmp}/usr/share/doc/${ant.project.name}/changelog.gz"
+		/>
+
+		<!-- shell script -->
+		<chmod file="${dir.debiantmp}/bin/${ant.project.name}" perm="ugo+rx"/>
+
+		<!-- control file -->
+		<replace
+			file="${dir.debiantmp}/DEBIAN/control"
+			token="**version**"
+			value="${version}"
+		/>
+
+		<length property="dirsize">
+			<fileset dir="${dir.debiantmp}" />
+		</length>
+
+		<math result="dirsize" operand1="${dirsize}" operation="/" operand2="1024" datatype="int" />
+
+		<replace
+			file="${dir.debiantmp}/DEBIAN/control"
+			token="**size**"
+			value="${dirsize}"
+		/>
+
+		<echo message="Ready, now call 'ant createdeb' (not as root)." />
+
+	</target>
+
+	<target name="createdeb" description="Create deb file.">
+
+		<!-- create deb file -->
+		<exec executable="dpkg" output="${file.log}" append="true" >
+			<arg value="--build" />
+			<arg value="${dir.debiantmp}" />
+		</exec>
+
+		<move file="${dir.debiantmp}.deb" tofile="../files/${ant.project.name}-${version}.deb" />
+
+		<!-- link created installer -->
+		<symlink
+			link="../files/${ant.project.name}.deb"
+			resource="${ant.project.name}-${version}.deb"
+			overwrite="true"
+		/>
+
+		<echo message="Ready, now call 'sudo ant clearTmp' (as root)." />
+
+	</target>
+
+	<target name="clearTmp" description="Delete temporary files.">
+		<delete dir="${dir.debiantmp}" />
+	</target>
+
+	<target name="wininstall" depends="clearLog" description="Create windows installer.">
+
+		<!-- copy templates -->
+		<copy toDir="${dir.wintmp}">
+			<fileset dir="${dir.win}" />
+		</copy>
+
+		<!-- nsi file -->
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.major**"
+			value="${version.major}"
+		/>
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.minor**"
+			value="${version.minor}"
+		/>
+		<replace
+			file="${dir.wintmp}/${ant.project.name}.nsi"
+			token="**version.build**"
+			value="${version.build}"
+		/>
+
+		<!-- call nsis -->
+		<antcall target="installer" />
+
+		<!-- link created installer -->
+		<antcall target="symlink" />
+
+		<!-- remove temp dir -->
+		<delete dir="${dir.wintmp}" />
+
+	</target>
+
+	<target name="symlink" if="isUnix">
+		<symlink
+			link="../files/${ant.project.name}.exe"
+			resource="${ant.project.name}-${version}.exe"
+			overwrite="true"
+		/>
+	</target>
+
+	<target name="help" description="Shows help text.">
+		<echo>Create ${ant.project.name} installer</echo>
+		<echo />
+		<echo>You can use the following targets:</echo>
+
+		<!-- show all available targets -->
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-projecthelp" />
+			<arg value="-buildfile" />
+			<arg value="${ant.file}" />
+		</java>
+	</target>
+
+	<target name="clearLog" description="Delete log file.">
+		<echo message="" file="${file.log}" />
+		<delete>
+			<fileset dir="." includes="**/*.log" />
+		</delete>
+	</target>
+
+</project>
+
+<!-- EOF -->

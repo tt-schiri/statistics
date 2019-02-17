@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Ant script for jaxb creation.
+
+## Legal stuff
+
+Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
+
+The program is distributed under the terms of the GNU General Public License.
+
+See COPYING for details.
+
+This file is part of TT-Schiri: Statistics.
+
+TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TT-Schiri: Statistics is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
+
+@author Ekkart Kleinod
+@version 0.5.0
+@since 0.5.0
+-->
+
+<project name="statistics" default="help" basedir=".">
+
+	<property name="edgeutils:ant" value="../../../../submodules/edgeutils/ant" />
+	<property name="edgeutils:jaxb" value="../../../../submodules/edgeutils/jaxb" />
+	<import file="${edgeutils:ant}/ant-commons.xml"/>
+	<import file="${edgeutils:ant}/ant-jaxb.xml"/>
+
+	<property name="local:xsd" value="${ant.project.name}.xsd" />
+	<property name="local:outpath" value="../java/" />
+	<property name="local:package" value="de.edgesoft.${ant.project.name}.jaxb" />
+	<property name="local:packagepath" value="${local:outpath}de/edgesoft/${ant.project.name}/jaxb/" />
+	<property name="local:bindings1" value="${edgeutils:jaxb}/commons.xjb" />
+	<property name="local:bindings2" value="${edgeutils:jaxb}/commons-reuse.xjb" />
+	<property name="local:bindings3" value="${ant.project.name}.xjb" />
+
+	<target name="model" description="Removes, then generates the local model classes from xsd.">
+
+		<antcall target="deletemodel">
+			<param name="del:path" value="${local:packagepath}" />
+		</antcall>
+
+		<antcall target="callxjc">
+			<param name="xjc:outpath" value="${local:outpath}" />
+			<param name="xjc:package" value="${local:package}" />
+			<param name="xjc:xsd" value="${local:xsd}" />
+			<param name="xjc:bindings1" value="${local:bindings1}" />
+			<param name="xjc:bindings2" value="${local:bindings2}" />
+			<param name="xjc:bindings3" value="${local:bindings3}" />
+		</antcall>
+
+	</target>
+
+</project>
+
+<!-- EOF -->

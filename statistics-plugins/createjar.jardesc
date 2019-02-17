@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="statistics/plugins/statistics-plugins.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/statistics-plugins/createjar.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" manifestLocation="/statistics-plugins/MANIFEST.MF" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
+        <folder path="/statistics-plugins/src"/>
+        <javaElement handleIdentifier="=statistics-plugins/src\/main\/java"/>
+        <folder path="/statistics-plugins/target"/>
+    </selectedElements>
+</jardesc>

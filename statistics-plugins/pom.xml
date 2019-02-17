@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.edgesoft</groupId>
+  <artifactId>statistics-plugins</artifactId>
+  <version>0.5.0-snapshot</version>
+  <packaging>jar</packaging>
+
+  <name>Statistics Plugins</name>
+  <description>Statistics plugins (chart generators) for statistics for table tennis.</description>
+  <url>https://github.com/tt-schiri/statistics</url>
+  <organization>
+  	<name>Ekkart Kleinod (edge-soft)</name>
+  	<url>http://www.edgesoft.de/</url>
+  </organization>
+
+  <issueManagement>
+  	<system>github</system>
+  	<url>https://github.com/tt-schiri/statistics/issues</url>
+  </issueManagement>
+  <scm>
+  	<url>https://github.com/tt-schiri/statistics</url>
+  	<developerConnection>ekleinod</developerConnection>
+  </scm>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <java.version>1.8</java.version>
+  </properties>
+
+  <dependencies>
+  	<dependency>
+  		<groupId>de.edgesoft</groupId>
+  		<artifactId>edgeutils</artifactId>
+  		<version>0.10.1</version>
+  	</dependency>
+	<dependency>
+	    <groupId>org.pf4j</groupId>
+	    <artifactId>pf4j</artifactId>
+	    <version>2.1.0</version>
+	</dependency>
+	<dependency>
+		<groupId>de.edgesoft</groupId>
+		<artifactId>statistics</artifactId>
+		<version>0.5.0-snapshot</version>
+	</dependency>
+  </dependencies>
+</project>
