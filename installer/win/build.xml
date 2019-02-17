@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+Create statistics win installer.
+
+# Legal stuff
+
+Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
+
+The program is distributed under the terms of the GNU General Public License.
+
+See COPYING for details.
+
+This file is part of TT-Schiri: Statistics.
+
+TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TT-Schiri: Statistics is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
+
+@author Ekkart Kleinod
+@version 0.5.0
+@since 0.5.0
+
+-->
+
+<project basedir=".">
+
+	<!-- your local path here -->
+	<property name="exe:nsis:windows" value="C:\localapps\NSIS\makensis.exe" />
+	<property name="exe:nsis:unix" value="makensis" />
+
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+	<condition property="isUnix">
+		<os family="unix" />
+	</condition>
+
+	<target name="installer">
+
+		<antcall target="nsis:windows" />
+		<antcall target="nsis:unix" />
+
+	</target>
+
+	<target name="nsis:windows" if="isWindows">
+		<antcall target="nsis">
+			<param name="exe:nsis" value="${exe:nsis:windows}" />
+		</antcall>
+	</target>
+
+	<target name="nsis:unix" if="isUnix">
+		<antcall target="nsis">
+			<param name="exe:nsis" value="${exe:nsis:unix}" />
+		</antcall>
+	</target>
+
+	<target name="nsis">
+
+		<exec executable="${exe:nsis}" output="${file.log}" append="true" failonerror="true">
+			<arg line="${file.nsi}" />
+		</exec>
+
+	</target>
+
+</project>
+
+<!-- EOF -->

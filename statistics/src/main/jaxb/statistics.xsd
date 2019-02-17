@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+XSD-Schema for player statistics.
+
+## Legal stuff
+
+Copyright 2015-2017 Ekkart Kleinod <ekleinod@edgesoft.de>
+
+The program is distributed under the terms of the GNU General Public License.
+
+See COPYING for details.
+
+This file is part of TT-Schiri: Statistics.
+
+TT-Schiri: Statistics is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TT-Schiri: Statistics is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with TT-Schiri: Statistics.  If not, see <http://www.gnu.org/licenses/>.
+
+@author Ekkart Kleinod
+@version 0.5.0
+@since 0.5.0
+-->
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+	jxb:version="2.1">
+
+	<!-- allow xml:base attribute in order to avoid include errors -->
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2005/08/xml.xsd" />
+
+	<xsd:include schemaLocation="../../../../submodules/edgeutils/jaxb/commons.xsd" />
+
+	<xsd:element name="statistics" type="Statistics" />
+
+	<xsd:complexType name="Statistics">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="info" type="Info" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="content" type="Content" minOccurs="1" maxOccurs="1" />
+				</xsd:sequence>
+				<xsd:attribute ref="xml:base" />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Content">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="season" type="Season" minOccurs="1" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Season">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="title" type="StringProperty" minOccurs="1" maxOccurs="1" />
+
+					<xsd:element name="match" type="Match" minOccurs="1" maxOccurs="unbounded" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Match">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="date" type="LocalDateProperty" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="title" type="StringProperty" minOccurs="1" maxOccurs="1" />
+
+					<xsd:element name="home" type="BooleanProperty" minOccurs="1" maxOccurs="1" />
+
+					<xsd:element name="set" type="Set" minOccurs="1" maxOccurs="5" />
+					<xsd:element name="result" type="Result" minOccurs="1" maxOccurs="1" />
+
+					<xsd:element name="live-pz-before" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="live-pz-other" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="live-pz-diff" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="live-pz-after" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Set">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="result" type="Result" minOccurs="0" maxOccurs="1" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="Result">
+		<xsd:complexContent>
+			<xsd:extension base="ModelClass">
+				<xsd:sequence>
+					<xsd:element name="won" type="BooleanProperty" minOccurs="1" maxOccurs="1" />
+					<xsd:element name="number" type="IntegerProperty" minOccurs="1" maxOccurs="1" />
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+</xsd:schema>
+
+<!-- EOF -->
